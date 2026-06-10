@@ -1,0 +1,143 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  width: 100%;
+}
+
+.card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cardTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: hsl(var(--text-secondary));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cardIcon {
+  color: hsl(var(--accent-primary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardValue {
+  font-size: 32px;
+  font-weight: 700;
+  color: hsl(var(--text-primary));
+  letter-spacing: -0.02em;
+}
+
+.cardSubtext {
+  font-size: 12px;
+  color: hsl(var(--text-muted));
+}
+
+.twoColumnLayout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  width: 100%;
+}
+
+.section {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 400px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.quickActions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.actionBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: hsl(var(--bg-surface-elevated));
+  border: 1px solid hsl(var(--border-color));
+  border-radius: var(--radius-md);
+  color: hsl(var(--text-primary));
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.actionBtn:hover {
+  border-color: hsl(var(--accent-primary));
+  background-color: hsl(var(--border-color));
+  transform: translateY(-1px);
+}
+
+.activityList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.activityItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid hsl(var(--border-color));
+}
+
+.activityDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.activityText {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: hsl(var(--text-primary));
+  transition: var(--transition-smooth);
+}
+
+.activityText:hover {
+  color: hsl(var(--accent-primary));
+  text-decoration: underline;
+}
+
+.activityMeta {
+  font-size: 11.5px;
+  color: hsl(var(--text-muted));
+}
+
+.activityStatus {
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 1024px) {
+  .twoColumnLayout {
+    grid-template-columns: 1fr;
+  }
+}

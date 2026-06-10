@@ -1,0 +1,132 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+}
+
+.planCard {
+  padding: 32px;
+  background: var(--accent-primary-gradient);
+  color: #ffffff;
+  border-radius: var(--radius-xl);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(249, 115, 22, 0.2);
+}
+
+.planDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.planTitle {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.planSubtitle {
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+.upgradeBtn {
+  background-color: #ffffff;
+  color: hsl(var(--accent-primary));
+  border: none;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.upgradeBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.metricCard {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.metricHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metricTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: hsl(var(--text-primary));
+}
+
+.metricValue {
+  font-size: 13px;
+  color: hsl(var(--text-secondary));
+  font-weight: 500;
+}
+
+.barContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.barTrack {
+  width: 100%;
+  height: 8px;
+  background-color: hsl(var(--border-color));
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: var(--radius-sm);
+  transition: width 0.5s ease;
+}
+
+.barFill-normal {
+  background-color: hsl(var(--status-success));
+}
+
+.barFill-warning {
+  background-color: hsl(var(--status-warning));
+}
+
+.barFill-danger {
+  background-color: hsl(var(--status-error));
+}
+
+.metricPercentage {
+  font-size: 20px;
+  font-weight: 700;
+  color: hsl(var(--text-primary));
+  align-self: flex-end;
+}
+
+@media (max-width: 768px) {
+  .planCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  
+  .upgradeBtn {
+    width: 100%;
+  }
+}

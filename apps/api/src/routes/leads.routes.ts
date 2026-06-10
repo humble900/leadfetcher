@@ -1,0 +1,105 @@
+import { Router } from 'express';
+import { leadService } from '../services/lead.service.js';
+import { LeadQuerySchema } from '@leadfetcher/shared';
+import { handleValidationError } from '../middleware/errorHandler.middleware.js';
+import { limitMiddleware } from '../middleware/limit.middleware.js';
+
+const router = Router();
+
+// ─── GET /api/leads — List my leads ──────────────────────────
+router.get('/', async (req, res, next) => {
+  try {
+    const parsed = LeadQuerySchema.safeParse({
+      ...req.query,
+      page: req.query.page ? parseInt(req.query.page as string) : undefined,
+      limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
+      minQualityScore: req.query.minQualityScore ? parseInt(req.query.minQualityScore as string) : undefined,
+      hasEmail: req.query.hasEmail === 'true' ? true : req.query.hasEmail === 'false' ? false : undefined,
+      hasPhone: req.query.hasPhone === 'true' ? true : req.query.hasPhone === 'false' ? false : undefined,
+      isVerified: req.query.isVerified === 'true' ? true : req.query.isVerified === 'false' ? false : undefined,
+    });
+
+    if (!parsed.success) {
+      handleValidationError(res, parsed.error);
+      return;
+    }
+
+    const result = await leadService.getLeads(req.tenantId!, parsed.data);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── GET /api/leads/stats — Lead statistics ──────────────────
+router.get('/stats', async (req, res, next) => {
+  try {
+    const stats = await leadService.getStats(req.tenantId!);
+    res.json({ success: true, data: stats });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── GET /api/leads/:id — Get single lead ────────────────────
+router.get('/:id', async (req, res, next) => {
+  try {
+    const lead = await leadService.getLeadById(req.tenantId!, req.params.id!);
+    res.json({ success: true, data: lead });
+  } catch (err: any) {
+    if (err.statusCode === 404) {
+      res.status(404).json({ success: false, error: err.message });
+      return;
+    }
+    next(err);
+  }
+});
+
+// ─── DELETE /api/leads/:id — Delete a lead ───────────────────
+router.delete('/:id', async (req, res, next) => {
+  try {
+    await leadService.deleteLead(req.tenantId!, req.params.id!);
+    res.json({ success: true, message: 'Lead deleted' });
+  } catch (err: any) {
+    if (err.statusCode === 404) {
+      res.status(404).json({ success: false, error: err.message });
+      return;
+    }
+    next(err);
+  }
+});
+
+// ─── GET /api/leads/export — Export leads as CSV ─────────────
+router.get('/export/csv',
+  limitMiddleware('exports_monthly', 'maxExportsMonthly'),
+  async (req, res, next) => {
+    try {
+      const jobId = req.query.jobId as string | undefined;
+      const rows = await leadService.exportLeads(req.tenantId!, jobId);
+
+      // Set CSV headers
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="leads-${Date.now()}.csv"`);
+
+      // CSV header row
+      const headers = ['Vendor Name', 'Email', 'Phone', 'WhatsApp', 'Website', 'Location', 'Category', 'Product', 'Price', 'Quality Score', 'Source URL'];
+      res.write(headers.join(',') + '\n');
+
+      // CSV data rows
+      for (const row of rows) {
+        const values = [
+          row.vendorName, row.email, row.phone, row.whatsapp, row.website,
+          row.location, row.businessCategory, row.productName, row.price,
+          row.qualityScore, row.listingUrl,
+        ].map(v => `"${(v ?? '').toString().replace(/"/g, '""')}"`);
+        res.write(values.join(',') + '\n');
+      }
+
+      res.end();
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+export default router;

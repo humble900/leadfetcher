@@ -1,0 +1,21 @@
+{
+  "name": "leadfetcher",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production-grade multi-tenant lead extraction platform",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w apps/api",
+    "dev:worker": "npm run dev -w apps/worker",
+    "dev:dashboard": "npm run dev -w apps/dashboard",
+    "build": "npm run build --workspaces",
+    "db:migrate": "npm run db:migrate -w apps/api",
+    "db:seed": "npm run db:seed -w apps/api"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

@@ -1,0 +1,124 @@
+﻿
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        
+            <title>Estate Agents in Nigeria | Private Property Nigeria</title>
+        
+
+            <!-- Required meta tags -->
+        <meta charset="utf-8" />
+        <meta name="apple-itunes-app" content="app-id=1625495384">
+        <meta name="google-play-app" content="app-id=ng.com.privateproperty.app">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="max-image-preview:large">
+        <link rel="manifest" href="https://privateproperty.ng/assets/manifest.json">
+        <link rel="apple-touch-icon" href="https://privateproperty.ng/assets/launcher-icon-60.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="https://privateproperty.ng/assets/launcher-icon-76.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="https://privateproperty.ng/assets/launcher-icon-120.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="https://privateproperty.ng/assets/launcher-icon-152.png">
+        <link rel="icon" type="image/png" href="/assets/static/cc65e4c80c855fffa2f3775a08243d88-favicon.png" />
+        
+    <meta name="robots" content="index, follow" />
+    <meta name="description" content="Browse our directory of qualified real estate agents in Nigeria. Find one near you or contact your chosen agent online today.">
+    <meta property="og:title" content="Estate Agents in Nigeria" />
+    <meta property="og:description" content="Browse our directory of qualified real estate agents in Nigeria. Find one near you or contact your chosen agent online today." />
+
+    <link rel="canonical" href="https://privateproperty.ng/estate-agents" />
+    <link rel="alternate" href="https://privateproperty.ng/estate-agents/" hreflang="en" />
+
+
+        <!-- Preload Fonts -->
+
+        <link rel="preload" href="/assets/static/main/webfonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin>
+        <link rel="preload" href="/assets/static/main/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
+        <link rel="preload" href="/assets/static/main/fonts/AvenirNext-Medium.woff2" as="font" type="font/woff2" crossorigin>
+        <link rel="preload" href="/assets/static/main/fonts/AvenirNext-Bold.woff2" as="font" type="font/woff2" crossorigin>
+        <link rel="preload" href="/assets/static/main/fonts/AvenirNext-DemiBold.woff2" as="font" type="font/woff2" crossorigin>
+        <link rel="preload" href="/assets/static/main/fonts/AvenirNext-Regular.woff2" as="font" type="font/woff2" crossorigin>
+
+        <!-- Style, Bootstrap CSS -->
+        <link rel="stylesheet" href="/assets/static/main/css/334d684bbc46d3b588bf40722432727c-all.min.css" />
+
+        
+    <style>
+        
+    </style>
+
+
+        <style>
+            #ajaxWait {
+                display: none;
+                width: 100%;
+                height: 100%;
+                background: grey;
+                opacity: .5;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 1100;
+                overflow-x: hidden;
+                overflow-y: auto;
+                outline: 0;
+                transition: opacity .15s
+            }
+            #ajaxSpinner {
+                margin-top: 100px;
+                opacity: 1;
+                font-size: 100px;
+            }
+            .theme-text {
+                color: #0b5aa9 !important;
+            }
+        </style>
+
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-XTD790RJ2L"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-XTD790RJ2L');
+        </script>
+
+        <style>
+.similarSlider .slick-slide img {display:block;margin:0 auto}
+#homePopModal .modal-content {background-color: transparent !important;}
+#homePopModal .modal-header {border-bottom: none;margin-bottom: -50px;z-index: 1000;}
+#homePopModal .modal-body {margin: 0; padding: 0;}
+#homePopModal img  {width: 100%;cursor: pointer;}
+.property-guide {overflow-wrap: break-word; }
+</style>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PJ24NRK');</script>
+<!-- End Google Tag Manager -->
+
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "f2f76f7c-ba80-4251-93d3-cc1e7d7ce203",
+    });
+  });
+</script>
+
+
+<!--

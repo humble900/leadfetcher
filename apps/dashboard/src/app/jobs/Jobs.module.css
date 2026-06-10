@@ -1,0 +1,479 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tableCard {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table th {
+  padding: 16px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  color: hsl(var(--text-secondary));
+  border-bottom: 1px solid hsl(var(--border-color));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background-color: hsl(var(--bg-surface-elevated));
+}
+
+.table td {
+  padding: 18px 24px;
+  font-size: 14px;
+  color: hsl(var(--text-primary));
+  border-bottom: 1px solid hsl(var(--border-color));
+  vertical-align: middle;
+}
+
+.table tr:hover td {
+  background-color: hsl(var(--bg-surface-elevated) / 0.5);
+}
+
+.urlCell {
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+/* Progress bar styles */
+.progressContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 160px;
+}
+
+.progressBar {
+  width: 100%;
+  height: 6px;
+  background-color: hsl(var(--border-color));
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--accent-primary-gradient);
+  border-radius: var(--radius-sm);
+  transition: width 0.3s ease;
+}
+
+.progressLabel {
+  font-size: 11px;
+  color: hsl(var(--text-muted));
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ─── Form layouts ──────────────────────────── */
+
+.formCard {
+  max-width: 680px;
+  width: 100%;
+  padding: 40px;
+  margin: 0 auto;
+}
+
+.formTitle {
+  margin-bottom: 8px;
+}
+
+.formSubtitle {
+  color: hsl(var(--text-secondary));
+  margin-bottom: 32px;
+  font-size: 14px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.fieldLabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: hsl(var(--text-secondary));
+  margin-bottom: 8px;
+}
+
+.fieldLabelRequired::after {
+  content: ' *';
+  color: hsl(var(--status-error));
+}
+
+.flexRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* ─── Range Slider — full cross-browser ─────── */
+
+.sliderContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sliderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sliderValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: hsl(var(--accent-primary));
+  min-width: 42px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.sliderTrack {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: hsl(var(--border-color));
+}
+
+.sliderFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent-primary-gradient);
+  pointer-events: none;
+  transition: width 0.05s linear;
+}
+
+.sliderInput {
+  /* Reset */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: transparent;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+  margin: 0;
+}
+
+/* Webkit (Chrome, Safari, Edge) thumb */
+.sliderInput::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: hsl(var(--accent-primary));
+  border: 3px solid hsl(var(--bg-surface));
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(249, 115, 22, 0.5), 0 2px 6px rgba(0,0,0,0.3);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sliderInput::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 18px rgba(249, 115, 22, 0.7), 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.sliderInput:active::-webkit-slider-thumb {
+  transform: scale(1.3);
+}
+
+/* Firefox thumb */
+.sliderInput::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: hsl(var(--accent-primary));
+  border: 3px solid hsl(var(--bg-surface));
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(249, 115, 22, 0.5), 0 2px 6px rgba(0,0,0,0.3);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sliderInput::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 18px rgba(249, 115, 22, 0.7), 0 2px 8px rgba(0,0,0,0.4);
+}
+
+/* Firefox track — make transparent so our custom track shows */
+.sliderInput::-moz-range-track {
+  background: transparent;
+  border: none;
+  height: 6px;
+}
+
+.sliderTicks {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 2px;
+  margin-top: 2px;
+}
+
+.sliderTicks span {
+  font-size: 10px;
+  color: hsl(var(--text-muted));
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Select Input ──────────────────────────── */
+
+.selectInput {
+  background: hsl(var(--bg-surface));
+  border: 1px solid hsl(var(--border-color));
+  color: hsl(var(--text-primary));
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.selectInput:focus {
+  border-color: hsl(var(--accent-primary));
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+}
+
+.selectInput option {
+  background: hsl(var(--bg-surface));
+  color: hsl(var(--text-primary));
+}
+
+/* ─── Toggle Switch & LLM row ──────────────── */
+
+.toggleContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background-color: hsl(var(--bg-surface-elevated));
+  border: 1px solid hsl(var(--border-color));
+  border-radius: var(--radius-md);
+  gap: 16px;
+}
+
+.toggleInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.toggleLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: hsl(var(--text-primary));
+}
+
+.toggleDesc {
+  font-size: 12px;
+  color: hsl(var(--text-muted));
+  line-height: 1.4;
+}
+
+/* Custom CSS Toggle Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.toggleSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: hsl(var(--border-color));
+  transition: background-color 0.3s ease;
+  border-radius: 26px;
+}
+
+.toggleSlider::before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 4px;
+  bottom: 4px;
+  background-color: hsl(var(--text-secondary));
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  border-radius: 50%;
+}
+
+.switch input:checked + .toggleSlider {
+  background-color: hsl(var(--accent-primary));
+}
+
+.switch input:checked + .toggleSlider::before {
+  transform: translateX(24px);
+  background-color: #ffffff;
+}
+
+.switch input:disabled + .toggleSlider {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Advanced Selectors Accordion ─────────── */
+
+.advancedToggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: hsl(var(--bg-surface-elevated));
+  color: hsl(var(--text-primary));
+  border: 1px solid hsl(var(--border-color));
+  padding: 14px 20px;
+  font-weight: 500;
+  font-size: 14px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.advancedToggle:hover {
+  border-color: hsl(var(--border-glow));
+  background: hsl(var(--bg-surface));
+}
+
+.advancedArrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  transition: transform 0.3s ease;
+  color: hsl(var(--text-secondary));
+}
+
+.advancedArrowOpen {
+  transform: rotate(180deg);
+}
+
+.advancedPanel {
+  margin-top: 12px;
+  padding: 24px;
+  border-radius: var(--radius-md);
+  border: 1px dashed hsl(var(--border-color));
+  background-color: hsl(var(--bg-surface) / 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: slideDown 0.25s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.selectorField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.selectorLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: hsl(var(--text-secondary));
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.selectorLabel svg {
+  color: hsl(var(--text-muted));
+}
+
+/* ─── Form Actions Footer ──────────────────── */
+
+.formActions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  margin-top: 16px;
+  padding-top: 24px;
+  border-top: 1px solid hsl(var(--border-color));
+}
+
+/* ─── Error Banner ─────────────────────────── */
+
+.errorBanner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  background-color: hsl(var(--status-error-bg));
+  border: 1px solid hsl(var(--status-error) / 0.2);
+  color: hsl(var(--status-error));
+  font-size: 13.5px;
+  animation: slideDown 0.25s ease-out;
+}
+
+.errorBanner svg {
+  flex-shrink: 0;
+}
+
+/* ─── Responsive ───────────────────────────── */
+
+@media (max-width: 768px) {
+  .flexRow {
+    grid-template-columns: 1fr;
+  }
+
+  .formCard {
+    padding: 24px;
+  }
+}

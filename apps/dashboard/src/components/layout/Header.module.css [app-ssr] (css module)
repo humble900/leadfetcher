@@ -1,0 +1,12 @@
+__turbopack_context__.v({
+  "header": "Header-module__tnHJ1q__header",
+  "pageTitle": "Header-module__tnHJ1q__pageTitle",
+  "planBadge": "Header-module__tnHJ1q__planBadge",
+  "tenantInfo": "Header-module__tnHJ1q__tenantInfo",
+  "titleContainer": "Header-module__tnHJ1q__titleContainer",
+  "userAvatar": "Header-module__tnHJ1q__userAvatar",
+  "userEmail": "Header-module__tnHJ1q__userEmail",
+  "userInfo": "Header-module__tnHJ1q__userInfo",
+  "userPanel": "Header-module__tnHJ1q__userPanel",
+  "userRole": "Header-module__tnHJ1q__userRole",
+});

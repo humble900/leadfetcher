@@ -1,0 +1,15 @@
+__turbopack_context__.v({
+  "activeNavLink": "Sidebar-module__gjmQOG__activeNavLink",
+  "adminDivider": "Sidebar-module__gjmQOG__adminDivider",
+  "adminLink": "Sidebar-module__gjmQOG__adminLink",
+  "footer": "Sidebar-module__gjmQOG__footer",
+  "linkLabel": "Sidebar-module__gjmQOG__linkLabel",
+  "logoContainer": "Sidebar-module__gjmQOG__logoContainer",
+  "logoIcon": "Sidebar-module__gjmQOG__logoIcon",
+  "logoText": "Sidebar-module__gjmQOG__logoText",
+  "logoutButton": "Sidebar-module__gjmQOG__logoutButton",
+  "logoutText": "Sidebar-module__gjmQOG__logoutText",
+  "nav": "Sidebar-module__gjmQOG__nav",
+  "navLink": "Sidebar-module__gjmQOG__navLink",
+  "sidebar": "Sidebar-module__gjmQOG__sidebar",
+});
