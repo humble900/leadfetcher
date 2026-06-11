@@ -17,7 +17,6 @@ export default defineRailway(() => {
     build: "npm run build:api",
     start: "npm run start:api",
     env: {
-      PORT: "4000",
       NODE_ENV: "production",
       DATABASE_URL: db.env.DATABASE_URL,
       REDIS_URL: cache.env.REDIS_URL,
@@ -47,7 +46,6 @@ export default defineRailway(() => {
     start: "npm run start:dashboard",
     env: {
       NEXT_PUBLIC_API_URL: preserve(),
-      PORT: "3000",
       NODE_ENV: "production",
     },
   });
