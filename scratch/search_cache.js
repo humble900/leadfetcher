@@ -1,45 +1,26 @@
 const fs = require('fs');
-const path = require('path');
+const readline = require('readline');
 
-const cacheDir = 'C:/Users/USER/leadfetcher/apps/dashboard/.next/dev/cache/turbopack';
-
-function walk(dir, results = []) {
-  if (!fs.existsSync(dir)) return results;
-  const list = fs.readdirSync(dir);
-  list.forEach(file => {
-    const fullPath = path.join(dir, file);
-    const stat = fs.statSync(fullPath);
-    if (stat && stat.isDirectory()) {
-      walk(fullPath, results);
-    } else {
-      results.push(fullPath);
-    }
+async function scan() {
+  const logPath = 'C:/Users/USER/.gemini/antigravity-ide/brain/8137a219-0d6f-458a-8616-63bda6196c1e/.system_generated/logs/transcript.jsonl';
+  if (!fs.existsSync(logPath)) {
+    console.log('Transcript file does not exist at ' + logPath);
+    return;
+  }
+  const fileStream = fs.createReadStream(logPath);
+  const rl = readline.createInterface({
+    input: fileStream,
+    crlfDelay: Infinity
   });
-  return results;
-}
 
-const files = walk(cacheDir);
-console.log(`Found ${files.length} cache files. Searching...`);
-
-for (const file of files) {
-  if (!file.endsWith('.sst')) continue;
-  try {
-    const content = fs.readFileSync(file, 'utf8');
-    if (content.includes('wa.me') || content.includes('isExportModalOpen')) {
-      console.log(`Found match in file: ${file}`);
-      // Find the position of 'wa.me' or 'isExportModalOpen'
-      let idx = content.indexOf('wa.me');
-      if (idx === -1) idx = content.indexOf('isExportModalOpen');
-      
-      // Print surrounding context (e.g. 5000 characters before and after)
-      const start = Math.max(0, idx - 5000);
-      const end = Math.min(content.length, idx + 10000);
-      console.log('--- Context start ---');
-      console.log(content.substring(start, end));
-      console.log('--- Context end ---');
-      break;
+  let lineNum = 0;
+  for await (const line of rl) {
+    lineNum++;
+    if (line.includes('git') || line.includes('github') || line.includes('clone') || line.includes('remote')) {
+      console.log(`Line ${lineNum}:`);
+      console.log(line.substring(0, 500) + '...');
     }
-  } catch (e) {
-    // Ignore read errors
   }
 }
+
+scan().catch(console.error);
