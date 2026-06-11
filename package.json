@@ -11,7 +11,7 @@
     "dev:api": "npm run dev -w apps/api",
     "dev:worker": "npm run dev -w apps/worker",
     "dev:dashboard": "npm run dev -w apps/dashboard",
-    "build": "npm run build --workspaces",
+    "build": "npm run build:shared && npm run build -w apps/api && npm run build -w apps/worker && npm run build -w apps/dashboard",
     "build:shared": "npm run build -w packages/shared",
     "build:api": "npm run build -w packages/shared && npm run build -w apps/api",
     "build:worker": "npm run build -w packages/shared && npm run build -w apps/worker",
@@ -24,5 +24,10 @@
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "railway": "^3.1.1",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.22.4"
   }
 }
