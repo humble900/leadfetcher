@@ -13,7 +13,7 @@ export default defineRailway(() => {
   const cache = redis("Redis");
 
   const api = service("@leadfetcher/api", {
-    source: github("humble900/leadfetcher"),
+    source: github("humble900/leadfetcher", { branch: "master" }),
     build: "npm run build:api",
     start: "npm run start:api",
     env: {
@@ -30,7 +30,7 @@ export default defineRailway(() => {
   });
 
   const worker = service("@leadfetcher/worker", {
-    source: github("humble900/leadfetcher"),
+    source: github("humble900/leadfetcher", { branch: "master" }),
     build: "npm run build:worker",
     start: "npm run start:worker",
     env: {
@@ -42,7 +42,7 @@ export default defineRailway(() => {
   });
 
   const dashboard = service("dashboard", {
-    source: github("humble900/leadfetcher"),
+    source: github("humble900/leadfetcher", { branch: "master" }),
     build: "npm run build:dashboard",
     start: "npm run start:dashboard",
     env: {
