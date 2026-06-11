@@ -1,0 +1,12 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Disallow authenticated app routes from search indexing
+Disallow: /jobs
+Disallow: /leads
+Disallow: /usage
+Disallow: /admin
+
+# Sitemap
+Sitemap: https://dashboard-production-95ec.up.railway.app/sitemap.xml
