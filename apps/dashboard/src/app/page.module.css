@@ -736,6 +736,14 @@
   color: #3b82f6;
   overflow-y: auto;
   line-height: 1.6;
+  height: 220px;
+  max-height: 220px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.consoleLogs::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
 }
 
 .consolePlaceholder {
@@ -765,6 +773,14 @@
   flex-grow: 1;
   overflow-y: auto;
   position: relative;
+  height: 220px;
+  max-height: 220px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.resultsContainer::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
 }
 
 .resultsPlaceholder {

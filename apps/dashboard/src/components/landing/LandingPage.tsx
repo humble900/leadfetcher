@@ -195,46 +195,29 @@ export default function LandingPage() {
           </Link>
         </div>
 
-        {/* Dashboard Mockup */}
-        <div className="mockup-trigger" style={{ width: '100%' }}>
+        {/* Real-time Extraction Simulator (replaces the dashboard mockup) */}
+        <div className="mockup-trigger" style={{ width: '100%', marginTop: '20px' }}>
+          <div className={styles.sectionHeader} style={{ marginBottom: '24px' }}>
+            <h2 className={styles.sectionTitle} style={{ fontSize: '28px', lineHeight: '1.2' }}>
+              Experience our extraction intelligence in <span>real-time</span>
+            </h2>
+            <p className={styles.sectionSub} style={{ fontSize: '15px', maxWidth: '720px' }}>
+              Run a simulated crawlers execution targeting any sandbox address and view how our background workers parse, filter, and verify leads instantly.
+            </p>
+          </div>
           <div className={`${styles.mockupContainer} mockup-tilt`}>
-            <div className={styles.mockup}>
+            <div className={styles.mockup} style={{ transform: 'none' }}>
               <div className={styles.mockupHeader}>
                 <div className={styles.mockupDots}>
                   <div className={styles.mockupDot}></div>
                   <div className={styles.mockupDot}></div>
                   <div className={styles.mockupDot}></div>
                 </div>
-                <div className={styles.mockupTitle}>dashboard.leadfetcher.com/jobs/active</div>
+                <div className={styles.mockupTitle}>crawler.leadfetcher.io/sandbox</div>
                 <div style={{ width: '40px' }}></div>
               </div>
-              <div className={styles.mockupContent}>
-                <div className={styles.mockupMain}>
-                  <div className={styles.mockupHeading}>Real-Time Extraction Log</div>
-                  <div className={styles.mockupCodeLine}><span>[09:21:40]</span> Initiating Puppeteer cluster controller...</div>
-                  <div className={styles.mockupCodeLine}><span>[09:21:41]</span> Spawning worker thread #1 for target domain...</div>
-                  <div className={styles.mockupCodeLine} style={{ color: '#22c55e' }}><span>[09:21:42]</span> Found email: <strong style={{ fontWeight: 600 }}>contact@domain.com</strong> (Added to DB)</div>
-                  <div className={styles.mockupCodeLine}><span>[09:21:44]</span> Resolving repeating card structures on page 2...</div>
-                  <div className={styles.mockupCodeLine} style={{ color: '#eab308' }}><span>[09:21:45]</span> Extracted WhatsApp: <strong style={{ fontWeight: 600 }}>+234 809 1122</strong> (Verified link)</div>
-                  <div className={styles.mockupCodeLine}><span>[09:21:48]</span> Thread complete. Found 28 verified records.</div>
-                </div>
-                <div className={styles.mockupSidebar}>
-                  <div className={styles.mockupBox}>
-                    <div className={styles.mockupHeading}>Status</div>
-                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
-                      <span className={styles.mockupPulse}></span>
-                      <span style={{ fontSize: '13px', fontWeight: 600, color: '#22c55e' }}>Active</span>
-                    </div>
-                  </div>
-                  <div className={styles.mockupBox}>
-                    <div className={styles.mockupHeading}>Leads Found</div>
-                    <div className={styles.mockupValue}>1,428</div>
-                  </div>
-                  <div className={styles.mockupBox}>
-                    <div className={styles.mockupHeading}>Success Rate</div>
-                    <div className={styles.mockupValue} style={{ color: '#f97316' }}>98.4%</div>
-                  </div>
-                </div>
+              <div style={{ padding: '8px' }}>
+                <ScraperSimulator />
               </div>
             </div>
           </div>
@@ -276,10 +259,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Interactive Sandbox Simulator */}
-      <section id="simulator" className={styles.sectionWrapper}>
-        <ScraperSimulator />
-      </section>
+
 
       {/* Step-by-Step Timeline (How it works) */}
       <section id="workflow" className={`${styles.sectionWrapper} flow-trigger`}>

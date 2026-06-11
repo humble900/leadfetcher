@@ -16,6 +16,7 @@ import { errorHandler } from './middleware/errorHandler.middleware.js';
 
 // Routes
 import authRoutes from './routes/auth.routes.js';
+import publicRoutes from './routes/public.routes.js';
 import jobsRoutes from './routes/jobs.routes.js';
 import leadsRoutes from './routes/leads.routes.js';
 import usageRoutes from './routes/usage.routes.js';
@@ -42,6 +43,9 @@ app.get('/api/health', (_req, res) => {
 
 // ─── Auth Routes (public) ────────────────────────────────────
 app.use('/api/auth', authRoutes);
+
+// ─── Public Sandboxed Routes ─────────────────────────────────
+app.use('/api/public', publicRoutes);
 
 // ─── Protected Routes ────────────────────────────────────────
 // All routes below require authentication + tenant context

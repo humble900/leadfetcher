@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { api } from '../../lib/api';
 import styles from '../../app/page.module.css';
 
 interface Log {
@@ -17,14 +19,8 @@ interface Lead {
   status: 'Verified' | 'Catch-All';
 }
 
-const MOCK_LEADS: Lead[] = [
-  { name: 'Sarah Jenkins', email: 'sjenkins@target.com', role: 'Head of Growth', confidence: 99, status: 'Verified' },
-  { name: 'Marcus Chen', email: 'm.chen@target.com', role: 'VP of Product', confidence: 98, status: 'Verified' },
-  { name: 'Elena Rostova', email: 'elena@target.com', role: 'Marketing Director', confidence: 94, status: 'Verified' },
-  { name: 'David Miller', email: 'david.miller@target.com', role: 'Sales Lead', confidence: 88, status: 'Catch-All' },
-];
-
 export default function ScraperSimulator() {
+  const router = useRouter();
   const [urlInput, setUrlInput] = useState('https://targetcompany.com/about');
   const [isScraping, setIsScraping] = useState(false);
   const [logs, setLogs] = useState<Log[]>([]);
@@ -37,160 +33,226 @@ export default function ScraperSimulator() {
     logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
 
-  const handleStartSimulation = () => {
+  const handleStartSimulation = async () => {
     if (isScraping) return;
     setIsScraping(true);
     setLogs([]);
     setLeads([]);
-    setProgress(0);
+    setProgress(5);
 
-    const simulationSteps = [
-      { time: '09:41:02', type: 'info', text: 'Initializing Puppeteer cluster agent...', delay: 0 },
-      { time: '09:41:03', type: 'info', text: `Target resolved: ${urlInput}`, delay: 700 },
-      { time: '09:41:04', type: 'info', text: 'Bypassing basic cloudflare protection layers...', delay: 1400 },
-      { time: '09:41:05', type: 'info', text: 'Page DOM model loaded. Extracting structures...', delay: 2200 },
-      { time: '09:41:06', type: 'success', text: 'Found Lead: Sarah Jenkins (sjenkins@target.com) - Head of Growth', delay: 3000, leadIndex: 0 },
-      { time: '09:41:07', type: 'success', text: 'Found Lead: Marcus Chen (m.chen@target.com) - VP of Product', delay: 3800, leadIndex: 1 },
-      { time: '09:41:08', type: 'success', text: 'Found Lead: Elena Rostova (elena@target.com) - Marketing Director', delay: 4600, leadIndex: 2 },
-      { time: '09:41:09', type: 'warning', text: 'Found Lead: David Miller (david.miller@target.com) - Catch-all status', delay: 5400, leadIndex: 3 },
-      { time: '09:41:10', type: 'info', text: 'Database sync complete. Cleaned and formatted records.', delay: 6200 },
-      { time: '09:41:11', type: 'success', text: 'Success! Crawl finished. Extracted 4 high-value records.', delay: 6800 },
-    ];
+    try {
+      setLogs([{
+        time: new Date().toLocaleTimeString(),
+        type: 'info',
+        text: 'Contacting background scraping cluster agents...',
+      }]);
 
-    simulationSteps.forEach((step) => {
-      setTimeout(() => {
-        setLogs((prev) => [...prev, { time: step.time, type: step.type as any, text: step.text }]);
-        setProgress((prev) => Math.min(prev + 10, 100));
+      // Call public endpoint
+      const response = await api.post<{
+        success: boolean;
+        domain: string;
+        logs: string[];
+        leads: Lead[];
+      }>('/public/scrape', { targetUrl: urlInput });
 
-        if (step.leadIndex !== undefined) {
-          setLeads((prev) => [...prev, MOCK_LEADS[step.leadIndex!]]);
-        }
+      if (!response.success) {
+        throw new Error('Sandbox scrape request failed.');
+      }
 
-        if (step.text.includes('Crawl finished')) {
+      const logsToSimulate = response.logs;
+      const leadsToSimulate = response.leads;
+      let currentStep = 0;
+
+      const runNextStep = () => {
+        if (currentStep >= logsToSimulate.length) {
           setIsScraping(false);
+          return;
         }
-      }, step.delay);
-    });
+
+        const logText = logsToSimulate[currentStep]!;
+        let logType: 'success' | 'warning' | 'info' = 'info';
+        if (logText.includes('Success') || logText.includes('complete') || logText.includes('Found')) {
+          logType = 'success';
+        } else if (logText.includes('timed out') || logText.includes('restricted')) {
+          logType = 'warning';
+        }
+
+        setLogs((prev) => [
+          ...prev,
+          {
+            time: new Date().toLocaleTimeString(),
+            type: logType,
+            text: logText,
+          },
+        ]);
+
+        const nextProgress = Math.min(
+          Math.round(((currentStep + 1) / logsToSimulate.length) * 100),
+          100
+        );
+        setProgress(nextProgress);
+
+        // Batch populate leads based on steps to look realistic
+        if (currentStep === 2) {
+          setLeads(leadsToSimulate.slice(0, 5));
+        } else if (currentStep === 4) {
+          setLeads(leadsToSimulate.slice(0, 30));
+        } else if (currentStep === 5) {
+          setLeads(leadsToSimulate.slice(0, 65));
+        } else if (currentStep === logsToSimulate.length - 1) {
+          setLeads(leadsToSimulate);
+        }
+
+        currentStep++;
+        setTimeout(runNextStep, 400); // 400ms pacing
+      };
+
+      // Delay starting steps slightly for natural timing
+      setTimeout(runNextStep, 500);
+
+    } catch (err: any) {
+      setLogs((prev) => [
+        ...prev,
+        {
+          time: new Date().toLocaleTimeString(),
+          type: 'warning',
+          text: `Scraper Error: ${err.message || 'Unable to establish sandbox proxy connection.'}`,
+        },
+      ]);
+      setIsScraping(false);
+    }
+  };
+
+  const handleExportLeads = () => {
+    router.push('/register');
   };
 
   return (
-    <div className={styles.simulatorWrapper}>
-      <h2 className={styles.sectionTitle}>
-        Experience our extraction intelligence in <span>real-time</span>
-      </h2>
-      <p className={styles.sectionSub} style={{ marginBottom: '40px' }}>
-        Run a simulated crawlers execution targeting any sandbox address and view how our background workers parse, filter, and verify leads instantly.
-      </p>
-
+    <div className={styles.simulatorWrapper} style={{ width: '100%' }}>
       {/* Simulator Sandbox */}
-      <div className={`glass-panel ${styles.simulatorSandbox}`}>
-        {/* Input area */}
-        <div className={styles.simulatorInputRow}>
-          <div className={styles.inputPrefix}>HTTPS://</div>
-          <input
-            type="text"
-            className={styles.simulatorInput}
-            value={urlInput.replace('https://', '').replace('http://', '')}
-            onChange={(e) => setUrlInput(e.target.value)}
-            disabled={isScraping}
-          />
-          <button
-            className={`btn-primary ${styles.simulatorBtn}`}
-            onClick={handleStartSimulation}
-            disabled={isScraping}
-          >
-            {isScraping ? 'Scraping...' : 'Test Scraper'}
-          </button>
+      <div className={styles.simulatorInputRow}>
+        <div className={styles.inputPrefix}>HTTPS://</div>
+        <input
+          type="text"
+          className={styles.simulatorInput}
+          value={urlInput.replace('https://', '').replace('http://', '')}
+          onChange={(e) => setUrlInput(e.target.value)}
+          disabled={isScraping}
+        />
+        <button
+          className={`btn-primary ${styles.simulatorBtn}`}
+          onClick={handleStartSimulation}
+          disabled={isScraping}
+        >
+          {isScraping ? 'Scraping...' : 'Fetch'}
+        </button>
+      </div>
+
+      {/* Progress Bar */}
+      {isScraping && (
+        <div className={styles.progressBarWrapper}>
+          <div className={styles.progressBar} style={{ width: `${progress}%` }}></div>
+        </div>
+      )}
+
+      {/* Console & Table Layout */}
+      <div className={styles.simulatorPanels}>
+        {/* Console Output */}
+        <div className={styles.simulatorConsole}>
+          <div className={styles.consoleHeader}>
+            <div className={styles.consoleTitle}>Worker Logs</div>
+            <div className={styles.consoleStatus}>
+              <span className={isScraping ? styles.pulseActive : styles.pulseIdle}></span>
+              {isScraping ? 'ACTIVE THREAD' : 'IDLE'}
+            </div>
+          </div>
+          <div className={styles.consoleLogs}>
+            {logs.length === 0 ? (
+              <div className={styles.consolePlaceholder}>
+                Enter domain above and click "Fetch" to run sandbox extraction...
+              </div>
+            ) : (
+              logs.map((log, index) => (
+                <div key={index} className={styles.consoleLine}>
+                  <span className={styles.logTime}>[{log.time}]</span>{' '}
+                  <span
+                    style={{
+                      color:
+                        log.type === 'success'
+                          ? '#22c55e'
+                          : log.type === 'warning'
+                          ? '#eab308'
+                          : '#3b82f6',
+                    }}
+                  >
+                    {log.type.toUpperCase()}:
+                  </span>{' '}
+                  {log.text}
+                </div>
+              ))
+            )}
+            <div ref={logEndRef} />
+          </div>
         </div>
 
-        {/* Progress Bar */}
-        {isScraping && (
-          <div className={styles.progressBarWrapper}>
-            <div className={styles.progressBar} style={{ width: `${progress}%` }}></div>
+        {/* Results Table */}
+        <div className={styles.simulatorResults}>
+          <div className={styles.consoleHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className={styles.consoleTitle}>Extracted Leads ({leads.length})</div>
+            {leads.length > 0 && (
+              <button
+                className="btn-primary"
+                onClick={handleExportLeads}
+                style={{
+                  padding: '4px 10px',
+                  fontSize: '11px',
+                  borderRadius: '4px',
+                  background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                  border: 'none',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                }}
+              >
+                Export Leads
+              </button>
+            )}
           </div>
-        )}
-
-        {/* Console & Table Layout */}
-        <div className={styles.simulatorPanels}>
-          {/* Console Output */}
-          <div className={styles.simulatorConsole}>
-            <div className={styles.consoleHeader}>
-              <div className={styles.consoleTitle}>Worker Logs</div>
-              <div className={styles.consoleStatus}>
-                <span className={isScraping ? styles.pulseActive : styles.pulseIdle}></span>
-                {isScraping ? 'ACTIVE THREAD' : 'IDLE'}
+          <div className={styles.resultsContainer}>
+            {leads.length === 0 ? (
+              <div className={styles.resultsPlaceholder}>
+                Results will populate here as leads are verified...
               </div>
-            </div>
-            <div className={styles.consoleLogs}>
-              {logs.length === 0 ? (
-                <div className={styles.consolePlaceholder}>
-                  Click "Test Scraper" above to initialize target extraction logs...
-                </div>
-              ) : (
-                logs.map((log, index) => (
-                  <div key={index} className={styles.consoleLine}>
-                    <span className={styles.logTime}>[{log.time}]</span>{' '}
-                    <span
-                      style={{
-                        color:
-                          log.type === 'success'
-                            ? '#22c55e'
-                            : log.type === 'warning'
-                            ? '#eab308'
-                            : '#3b82f6',
-                      }}
-                    >
-                      {log.type.toUpperCase()}:
-                    </span>{' '}
-                    {log.text}
-                  </div>
-                ))
-              )}
-              <div ref={logEndRef} />
-            </div>
-          </div>
-
-          {/* Results Table */}
-          <div className={styles.simulatorResults}>
-            <div className={styles.consoleHeader}>
-              <div className={styles.consoleTitle}>Extracted Leads ({leads.length})</div>
-            </div>
-            <div className={styles.resultsContainer}>
-              {leads.length === 0 ? (
-                <div className={styles.resultsPlaceholder}>
-                  Results will populate here as leads are verified...
-                </div>
-              ) : (
-                <table className={styles.resultsTable}>
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Email</th>
-                      <th>Role</th>
-                      <th>Status</th>
+            ) : (
+              <table className={styles.resultsTable}>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {leads.map((lead, index) => (
+                    <tr key={index} className={styles.resultsRow}>
+                      <td style={{ fontWeight: 600 }}>{lead.name}</td>
+                      <td style={{ color: 'hsl(var(--accent-primary))' }}>{lead.email}</td>
+                      <td>{lead.role}</td>
+                      <td>
+                        <span
+                          className={`badge badge-${
+                            lead.status === 'Verified' ? 'success' : 'warning'
+                          }`}
+                        >
+                          {lead.status}
+                        </span>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {leads.map((lead, index) => (
-                      <tr key={index} className={styles.resultsRow}>
-                        <td style={{ fontWeight: 600 }}>{lead.name}</td>
-                        <td style={{ color: 'hsl(var(--accent-primary))' }}>{lead.email}</td>
-                        <td>{lead.role}</td>
-                        <td>
-                          <span
-                            className={`badge badge-${
-                              lead.status === 'Verified' ? 'success' : 'warning'
-                            }`}
-                          >
-                            {lead.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       </div>
