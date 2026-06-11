@@ -46,13 +46,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response.success && response.data) {
         setUser(response.data.user || response.data);
         setTenant(response.data.tenant || null);
+        try {
+          localStorage.setItem('leadfetcher_logged_in', 'true');
+        } catch {}
       } else {
         setUser(null);
         setTenant(null);
+        try {
+          localStorage.removeItem('leadfetcher_logged_in');
+        } catch {}
       }
     } catch (error) {
       setUser(null);
       setTenant(null);
+      try {
+        localStorage.removeItem('leadfetcher_logged_in');
+      } catch {}
     } finally {
       setLoading(false);
     }
@@ -69,6 +78,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response.success && response.data) {
         setUser(response.data.user);
         setTenant(response.data.tenant);
+        try {
+          localStorage.setItem('leadfetcher_logged_in', 'true');
+        } catch {}
         router.push('/');
       }
     } finally {
@@ -83,6 +95,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response.success && response.data) {
         setUser(response.data.user);
         setTenant(response.data.tenant);
+        try {
+          localStorage.setItem('leadfetcher_logged_in', 'true');
+        } catch {}
         router.push('/');
       }
     } finally {
@@ -96,6 +111,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await api.post('/auth/logout');
       setUser(null);
       setTenant(null);
+      try {
+        localStorage.removeItem('leadfetcher_logged_in');
+      } catch {}
       router.push('/login');
     } finally {
       setLoading(false);

@@ -37,8 +37,14 @@ export default function DashboardHome() {
 
     fetchData();
   }, [user]);
+  let hasSessionHint = false;
+  try {
+    if (typeof window !== 'undefined') {
+      hasSessionHint = localStorage.getItem('leadfetcher_logged_in') === 'true';
+    }
+  } catch {}
 
-  if (authLoading || (user && loading)) {
+  if ((authLoading && hasSessionHint) || (user && loading)) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
         <p style={{ color: 'hsl(var(--text-secondary))', fontFamily: 'var(--font-family)' }}>Loading LeadFetcher...</p>
@@ -47,7 +53,7 @@ export default function DashboardHome() {
   }
 
   // Render landing page for guest users
-  if (!user) {
+  if (!user && (!authLoading || !hasSessionHint)) {
     return <LandingPage />;
   }
 

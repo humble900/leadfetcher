@@ -20,7 +20,15 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [user, loading, isPublicPath, isAuthPage, router]);
 
-  if (loading) {
+  let hasSessionHint = false;
+  try {
+    if (typeof window !== 'undefined') {
+      hasSessionHint = localStorage.getItem('leadfetcher_logged_in') === 'true';
+    }
+  } catch {}
+
+  // Only show the loading screen on private routes, or on public routes if we have a session hint
+  if (loading && (!isPublicPath || hasSessionHint)) {
     return (
       <div style={styles.loadingContainer}>
         <div style={styles.spinner}></div>
