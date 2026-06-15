@@ -71,3 +71,28 @@ Resulting in zero TypeScript compile errors or static generation warnings across
 - Initialized Git in the workspace root: `git init`.
 - Configured `.gitignore` files to properly exclude directories such as `node_modules`, `.next`, `dist`, `.turbo`, and environment config `.env`.
 - Executed the initial commit: `git commit -m "feat: implement premium landing page and setup monorepo routing"`.
+
+---
+
+## 6. Railway Monorepo Deployment & Infrastructure as Code (IaC) Setup
+
+We resolved the deployment blockers and successfully brought the entire monorepo stack online on Railway:
+
+### 6.1 Unified Build Configuration
+- Migrated services to compile and run from the repository root instead of subdirectories to resolve hoisted dependency and workspace symlink issues.
+- Updated root `package.json` `build` script to build workspaces sequentially (`npm run build:shared && ...`) to prevent race conditions during type compilation.
+- Removed all `tsconfig.tsbuildinfo` build-cache files from git tracking and added them to `.gitignore` to prevent TypeScript resolution errors on build servers.
+
+### 6.2 Railway Infrastructure as Code Configuration
+- Initialized and deployed using Railway IaC configuration file at [.railway/railway.ts](file:///c:/Users/USER/leadfetcher/.railway/railway.ts) with `NODE_OPTIONS="--import tsx"`.
+- Defined all 5 project resources (`Postgres`, `Redis`, `@leadfetcher/api`, `@leadfetcher/worker`, and `dashboard`) with their exact GitHub source branches, root paths, build/start commands, and cross-referenced environment variables (`DATABASE_URL`, `REDIS_URL`, `NEXT_PUBLIC_API_URL`, and `CORS_ORIGIN`).
+- Preserved existing production-critical variables (e.g. database secrets and verified public URLs) seamlessly using `preserve()`.
+
+### 6.3 Automated Database Migration & Seeding
+- Executed the production migrations and seeded the live Railway database using the public proxy URL:
+  ```bash
+  $env:DATABASE_URL="postgresql://postgres:oFmfXMosnAoTxGfUAWWHSupSGXfDXaSY@acela.proxy.rlwy.net:57782/railway"
+  npm run db:migrate
+  npm run db:seed
+  ```
+- **Deployment Status**: All 5 services (databases and applications) are currently fully verified, compiled, and `● Online` in production.

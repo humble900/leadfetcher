@@ -45,7 +45,7 @@ export async function checkAndIncrementLimit(
   const redis = getRedis();
   const periodKey = period === 'monthly' ? getMonthlyPeriod()
     : period === 'daily' ? getDailyPeriod()
-    : Math.floor(Date.now() / 60000).toString(); // minute bucket
+      : Math.floor(Date.now() / 60000).toString(); // minute bucket
 
   const key = `limit:${limitType}:${tenantId}:${periodKey}`;
 
@@ -74,14 +74,19 @@ export async function getCurrentUsage(
   limitType: string,
   period: 'monthly' | 'daily' | 'minute' = 'monthly',
 ): Promise<number> {
-  const redis = getRedis();
-  const periodKey = period === 'monthly' ? getMonthlyPeriod()
-    : period === 'daily' ? getDailyPeriod()
-    : Math.floor(Date.now() / 60000).toString();
+  try {
+    const redis = getRedis();
+    const periodKey = period === 'monthly' ? getMonthlyPeriod()
+      : period === 'daily' ? getDailyPeriod()
+        : Math.floor(Date.now() / 60000).toString();
 
-  const key = `limit:${limitType}:${tenantId}:${periodKey}`;
-  const value = await redis.get(key);
-  return value ? parseInt(value, 10) : 0;
+    const key = `limit:${limitType}:${tenantId}:${periodKey}`;
+    const value = await redis.get(key);
+    return value ? parseInt(value, 10) : 0;
+  } catch {
+    // Redis unavailable — return 0 usage
+    return 0;
+  }
 }
 
 /**

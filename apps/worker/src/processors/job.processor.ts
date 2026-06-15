@@ -22,6 +22,8 @@ import { extractListingCards, isListingPage } from '../engine/dom-extractor.js';
 import type { SiteProfile, JobConfig } from '@leadfetcher/shared';
 import * as cheerio from 'cheerio';
 import { extractWithLLM } from '../engine/llm-extractor.js';
+import { processGoogleMapsJob } from './google-maps.processor.js';
+import { processProspectorJob } from './prospector.processor.js';
 
 const { Pool } = pg;
 
@@ -55,6 +57,13 @@ export interface JobContext {
  * Process a single scraping job
  */
 export async function processJob(ctx: JobContext): Promise<void> {
+  if ((ctx.config as any)?.type === 'google_maps') {
+    return processGoogleMapsJob(ctx);
+  }
+  if ((ctx.config as any)?.type === 'prospector') {
+    return processProspectorJob(ctx);
+  }
+
   const pool = new Pool({ connectionString: ctx.databaseUrl });
   const db = drizzle(pool, { schema });
   const redis = new Redis(ctx.redisUrl);

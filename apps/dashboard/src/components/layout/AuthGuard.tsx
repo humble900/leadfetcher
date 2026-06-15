@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
 
@@ -8,9 +8,14 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
 
   const isPublicPath = pathname === '/' || pathname === '/login' || pathname === '/register';
   const isAuthPage = pathname === '/login' || pathname === '/register';
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!loading && !user && !isPublicPath) {
@@ -20,17 +25,20 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [user, loading, isPublicPath, isAuthPage, router]);
 
-  let hasSessionHint = false;
-  try {
-    if (typeof window !== 'undefined') {
-      hasSessionHint = localStorage.getItem('leadfetcher_logged_in') === 'true';
+  // On the server and during first client render, always render children for public paths
+  // This prevents hydration mismatch
+  if (!mounted) {
+    if (isPublicPath) {
+      return <>{children}</>;
     }
-  } catch {}
+    // For private routes before mount, render nothing to avoid flash
+    return null;
+  }
 
-  // Only show the loading screen on private routes, or on public routes if we have a session hint
-  if (loading && (!isPublicPath || hasSessionHint)) {
+  // After mount, we can safely check loading state
+  if (loading && !isPublicPath) {
     return (
-      <div style={styles.loadingContainer}>
+      <div style={styles.loadingContainer} suppressHydrationWarning>
         <div style={styles.spinner}></div>
         <p style={styles.loadingText}>Verifying session...</p>
       </div>
@@ -52,7 +60,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     height: '100vh',
-    backgroundColor: '#0a0a0c', // Dark modern background
+    backgroundColor: '#0a0a0c',
     color: '#f4f4f5',
     fontFamily: 'system-ui, -apple-system, sans-serif',
   },
@@ -61,7 +69,7 @@ const styles = {
     height: '48px',
     border: '4px solid rgba(255, 255, 255, 0.1)',
     borderRadius: '50%',
-    borderTopColor: '#f97316', // Premium orange accent
+    borderTopColor: '#f97316',
     animation: 'spin 1s linear infinite',
     marginBottom: '16px',
   },
@@ -73,13 +81,17 @@ const styles = {
   },
 };
 
-// Add standard inline styles keyframe helper
+// Inject spinner keyframe animation
 if (typeof document !== 'undefined') {
-  const styleEl = document.createElement('style');
-  styleEl.textContent = `
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-  `;
-  document.head.appendChild(styleEl);
+  const existing = document.getElementById('auth-guard-styles');
+  if (!existing) {
+    const styleEl = document.createElement('style');
+    styleEl.id = 'auth-guard-styles';
+    styleEl.textContent = `
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(styleEl);
+  }
 }

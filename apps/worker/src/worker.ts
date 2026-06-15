@@ -56,6 +56,7 @@ const worker = new Worker(
       max: 5,
       duration: 1000,
     },
+    skipVersionCheck: true,
   },
 );
 

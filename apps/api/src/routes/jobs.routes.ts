@@ -6,6 +6,7 @@ import { limitMiddleware, checkAndIncrementLimit } from '../middleware/limit.mid
 import { getDb } from '../config/database.js';
 import { plans } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
+import { getJobsQueue } from '../config/queue.js';
 
 const router = Router();
 
@@ -40,7 +41,21 @@ router.post('/',
         parsed.data.config,
       );
 
-      // TODO: Add job to BullMQ queue here (Phase 3)
+      // Add job to BullMQ queue
+      const queue = getJobsQueue();
+      await queue.add('scrape-job', {
+        jobId: job.id,
+        tenantId: req.tenantId!,
+        targetUrl: parsed.data.targetUrl,
+        config: parsed.data.config || {},
+        planLimits: {
+          maxPagesPerJob: plan?.maxPagesPerJob ?? 10,
+          maxLeadsMonthly: plan?.maxLeadsMonthly ?? 500,
+          maxConcurrentJobs: plan?.maxConcurrentJobs ?? 2,
+          llmEnabled: plan?.llmEnabled ?? false,
+          maxLlmTokensMonthly: plan?.maxLlmTokensMonthly ?? 0,
+        },
+      });
 
       res.status(201).json({ success: true, data: job });
     } catch (err) {

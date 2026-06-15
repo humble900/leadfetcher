@@ -42,7 +42,7 @@ export class LeadService {
     // Get paginated results
     const orderColumn = sortBy === 'qualityScore' ? leads.qualityScore
       : sortBy === 'vendorName' ? leads.vendorName
-      : leads.createdAt;
+        : leads.createdAt;
 
     const rows = await db.select()
       .from(leads)

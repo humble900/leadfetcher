@@ -488,11 +488,11 @@ function LeadsContent() {
                   <td>
                     {lead.website || lead.listingUrl ? (
                       <a
-                         href={lead.website || lead.listingUrl}
-                         target="_blank"
-                         rel="noopener noreferrer"
-                         className={styles.websiteLink}
-                         title={lead.website || lead.listingUrl}
+                        href={lead.website || lead.listingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.websiteLink}
+                        title={lead.website || lead.listingUrl}
                       >
                         {truncate(lead.website || lead.listingUrl, 20)} &rarr;
                       </a>
@@ -531,7 +531,7 @@ function LeadsContent() {
           >
             &laquo; Prev
           </button>
-          
+
           {renderPaginationRange().map((p, index) => {
             if (p === '...') {
               return <span key={`dots-${index}`} className={styles.pageInfo}>...</span>;
@@ -555,7 +555,7 @@ function LeadsContent() {
           >
             Next &raquo;
           </button>
-          
+
           <span className={styles.pageInfo}>
             (Total: {total} leads)
           </span>
@@ -582,7 +582,7 @@ function LeadsContent() {
           <div className={styles.modalContent}>
             <h3 className={styles.modalTitle}>Export Leads</h3>
             <p className={styles.modalSubtitle}>Customize the format and columns for your exported file.</p>
-            
+
             <div className={styles.filterField} style={{ marginBottom: '20px' }}>
               <label className={styles.filterLabel}>Export Format</label>
               <select

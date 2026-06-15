@@ -75,7 +75,7 @@ export async function fetchWithPlaywright(
 
     // Wait for specific selector if provided
     if (options.waitForSelector) {
-      await page.waitForSelector(options.waitForSelector, { timeout: 10_000 }).catch(() => {});
+      await page.waitForSelector(options.waitForSelector, { timeout: 10_000 }).catch(() => { });
     }
 
     // Scroll to bottom to trigger lazy loading
@@ -87,7 +87,7 @@ export async function fetchWithPlaywright(
     if (options.clickPhoneReveal) {
       const buttons = await page.$$(options.clickPhoneReveal);
       for (const btn of buttons) {
-        await btn.click().catch(() => {});
+        await btn.click().catch(() => { });
         await page.waitForTimeout(500);
       }
     }
@@ -182,7 +182,7 @@ export async function closeBrowser(): Promise<void> {
 /**
  * Random user agent to avoid fingerprinting
  */
-function getRandomUserAgent(): string {
+export function getRandomUserAgent(): string {
   const agents = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -195,7 +195,7 @@ function getRandomUserAgent(): string {
 /**
  * Random viewport to avoid fingerprinting
  */
-function getRandomViewport(): { width: number; height: number } {
+export function getRandomViewport(): { width: number; height: number } {
   const viewports = [
     { width: 1920, height: 1080 },
     { width: 1366, height: 768 },

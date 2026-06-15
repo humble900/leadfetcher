@@ -101,4 +101,41 @@ router.get('/stats', async (_req, res, next) => {
   }
 });
 
+// ─── Platform settings (in-memory, persists per server lifecycle) ─
+let platformSettings = {
+  paidMode: false,
+  maintenanceMode: false,
+  defaultPlanName: 'free',
+  maxTenantsAllowed: 10000,
+  signupsEnabled: true,
+};
+
+// ─── GET /api/admin/settings — Get platform settings ─────────
+router.get('/settings', async (_req, res) => {
+  res.json({ success: true, data: platformSettings });
+});
+
+// ─── PUT /api/admin/settings — Update platform settings ──────
+router.put('/settings', async (req, res) => {
+  const allowed = ['paidMode', 'maintenanceMode', 'defaultPlanName', 'maxTenantsAllowed', 'signupsEnabled'];
+  for (const key of allowed) {
+    if (req.body[key] !== undefined) {
+      (platformSettings as any)[key] = req.body[key];
+    }
+  }
+  logger.info({ settings: platformSettings }, 'Platform settings updated');
+  res.json({ success: true, data: platformSettings });
+});
+
+// ─── GET /api/admin/plans — List all plans ───────────────────
+router.get('/plans', async (_req, res, next) => {
+  try {
+    const db = getDb();
+    const rows = await db.select().from(plans);
+    res.json({ success: true, data: rows });
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;
