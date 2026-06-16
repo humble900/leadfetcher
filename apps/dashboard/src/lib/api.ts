@@ -26,13 +26,21 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     defaultHeaders['Content-Type'] = 'application/json';
   }
 
+  // Attach JWT token from localStorage as Bearer header for cross-origin auth
+  try {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('leadfetcher_token') : null;
+    if (token) {
+      defaultHeaders['Authorization'] = `Bearer ${token}`;
+    }
+  } catch {}
+
   const response = await fetch(url, {
     ...rest,
     headers: {
       ...defaultHeaders,
       ...headers,
     },
-    credentials: 'include', // Crucial for HttpOnly cookies (session token)
+    credentials: 'include', // Also send cookies as fallback
   });
 
   if (response.status === 204) {
