@@ -4,7 +4,7 @@ import { CreateJobSchema } from '@leadfetcher/shared';
 import { handleValidationError } from '../middleware/errorHandler.middleware.js';
 import { limitMiddleware, checkAndIncrementLimit } from '../middleware/limit.middleware.js';
 import { getDb } from '../config/database.js';
-import { plans } from '../db/schema.js';
+import { plans, tenants } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
 import { getJobsQueue } from '../config/queue.js';
 
@@ -26,10 +26,31 @@ router.post('/',
       const db = getDb();
       const [plan] = await db.select().from(plans).where(eq(plans.id, req.user!.planId)).limit(1);
 
-      if (plan && runningCount >= plan.maxConcurrentJobs) {
+      const [tenant] = await db.select({
+        customLimits: tenants.customLimits
+      }).from(tenants).where(eq(tenants.id, req.tenantId!)).limit(1);
+
+      const getLimit = (field: keyof typeof plans.$inferSelect, defaultVal: any) => {
+        let val = plan ? (plan as any)[field] : defaultVal;
+        if (tenant?.customLimits && typeof tenant.customLimits === 'object') {
+          const customValue = (tenant.customLimits as any)[field];
+          if (customValue !== undefined && customValue !== null) {
+            if (typeof defaultVal === 'boolean') {
+              val = customValue === true || customValue === 'true';
+            } else if (!isNaN(Number(customValue))) {
+              val = Number(customValue);
+            }
+          }
+        }
+        return val;
+      };
+
+      const maxConcurrent = getLimit('maxConcurrentJobs', 2);
+
+      if (runningCount >= maxConcurrent) {
         res.status(429).json({
           success: false,
-          error: `Maximum concurrent jobs reached (${plan.maxConcurrentJobs}). Wait for a running job to finish or upgrade your plan.`,
+          error: `Maximum concurrent jobs reached (${maxConcurrent}). Wait for a running job to finish or upgrade your plan.`,
         });
         return;
       }
@@ -49,11 +70,11 @@ router.post('/',
         targetUrl: parsed.data.targetUrl,
         config: parsed.data.config || {},
         planLimits: {
-          maxPagesPerJob: plan?.maxPagesPerJob ?? 10,
-          maxLeadsMonthly: plan?.maxLeadsMonthly ?? 500,
-          maxConcurrentJobs: plan?.maxConcurrentJobs ?? 2,
-          llmEnabled: plan?.llmEnabled ?? false,
-          maxLlmTokensMonthly: plan?.maxLlmTokensMonthly ?? 0,
+          maxPagesPerJob: getLimit('maxPagesPerJob', 10),
+          maxLeadsMonthly: getLimit('maxLeadsMonthly', 500),
+          maxConcurrentJobs: maxConcurrent,
+          llmEnabled: getLimit('llmEnabled', false),
+          maxLlmTokensMonthly: getLimit('maxLlmTokensMonthly', 0),
         },
       });
 

@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { getRedis } from '../config/redis.js';
 import { getDb } from '../config/database.js';
-import { plans } from '../db/schema.js';
+import { plans, tenants } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
 import { logger } from '../utils/logger.js';
 
@@ -108,7 +108,20 @@ export function limitMiddleware(limitType: string, planField: keyof typeof plans
         return;
       }
 
-      const maxAllowed = (plan as any)[planField] as number;
+      let maxAllowed = (plan as any)[planField] as number;
+
+      // Check for tenant custom limit overrides
+      const [tenant] = await db.select({
+        customLimits: tenants.customLimits
+      }).from(tenants).where(eq(tenants.id, req.tenantId!)).limit(1);
+
+      if (tenant?.customLimits && typeof tenant.customLimits === 'object') {
+        const customValue = (tenant.customLimits as any)[planField];
+        if (customValue !== undefined && customValue !== null && !isNaN(Number(customValue))) {
+          maxAllowed = Number(customValue);
+        }
+      }
+
       const result = await checkAndIncrementLimit(req.tenantId!, limitType, maxAllowed);
 
       if (!result.allowed) {

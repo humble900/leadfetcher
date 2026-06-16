@@ -3,6 +3,7 @@
 import React from 'react';
 import { useAuth } from './AuthContext';
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import styles from './Header.module.css';
 
 export default function Header() {
@@ -17,7 +18,11 @@ export default function Header() {
     }
     if (pathname.startsWith('/leads')) return 'Extracted Leads';
     if (pathname.startsWith('/usage')) return 'Quotas & Usage';
-    if (pathname.startsWith('/admin')) return 'Admin Settings';
+    if (pathname.startsWith('/settings')) return 'Settings';
+    if (pathname.startsWith('/admin')) {
+      if (pathname.includes('/subscriptions')) return 'Admin Subscriptions';
+      return 'Admin Settings';
+    }
     return 'LeadFetcher';
   };
 
@@ -41,9 +46,11 @@ export default function Header() {
               <span className={styles.userEmail}>{user.email}</span>
               <span className={styles.userRole}>{user.role}</span>
             </div>
-            <div className={styles.userAvatar}>
-              {getInitials(user.email)}
-            </div>
+            <Link href="/settings" style={{ textDecoration: 'none' }}>
+              <div className={styles.userAvatar} style={{ cursor: 'pointer' }}>
+                {getInitials(user.email)}
+              </div>
+            </Link>
           </>
         )}
       </div>

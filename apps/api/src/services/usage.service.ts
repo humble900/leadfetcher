@@ -17,6 +17,22 @@ export class UsageService {
       throw Object.assign(new Error('Plan not found'), { statusCode: 500 });
     }
 
+    // Load tenant custom limits override
+    const [tenant] = await db.select({
+      customLimits: tenants.customLimits
+    }).from(tenants).where(eq(tenants.id, tenantId)).limit(1);
+
+    const getLimit = (field: keyof typeof plans.$inferSelect) => {
+      let maxAllowed = (plan as any)[field] as number;
+      if (tenant?.customLimits && typeof tenant.customLimits === 'object') {
+        const customValue = (tenant.customLimits as any)[field];
+        if (customValue !== undefined && customValue !== null && !isNaN(Number(customValue))) {
+          maxAllowed = Number(customValue);
+        }
+      }
+      return maxAllowed;
+    };
+
     // Get current usage from Redis counters
     const [leadsUsed, jobsUsed, exportsUsed, concurrentUsed, llmUsed] = await Promise.all([
       getCurrentUsage(tenantId, 'leads_monthly'),
@@ -33,11 +49,11 @@ export class UsageService {
     });
 
     return {
-      leadsMonthly: buildMetric(leadsUsed, plan.maxLeadsMonthly),
-      jobsMonthly: buildMetric(jobsUsed, plan.maxJobsMonthly),
-      exportsMonthly: buildMetric(exportsUsed, plan.maxExportsMonthly),
-      concurrentJobs: buildMetric(concurrentUsed, plan.maxConcurrentJobs),
-      llmTokensMonthly: buildMetric(llmUsed, plan.maxLlmTokensMonthly || 0),
+      leadsMonthly: buildMetric(leadsUsed, getLimit('maxLeadsMonthly')),
+      jobsMonthly: buildMetric(jobsUsed, getLimit('maxJobsMonthly')),
+      exportsMonthly: buildMetric(exportsUsed, getLimit('maxExportsMonthly')),
+      concurrentJobs: buildMetric(concurrentUsed, getLimit('maxConcurrentJobs')),
+      llmTokensMonthly: buildMetric(llmUsed, getLimit('maxLlmTokensMonthly')),
     };
   }
 }

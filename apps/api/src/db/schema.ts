@@ -23,6 +23,7 @@ export const tenants = pgTable('tenants', {
   name: varchar('name', { length: 255 }).notNull(),
   planId: uuid('plan_id').notNull().references(() => plans.id),
   status: varchar('status', { length: 20 }).notNull().default('active'),
+  customLimits: jsonb('custom_limits').default({}),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 });

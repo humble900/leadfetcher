@@ -1,0 +1,398 @@
+.container {
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.pageHeader {
+  margin-bottom: 32px;
+}
+
+.pageTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: hsl(var(--text-primary));
+  margin: 0 0 6px;
+}
+
+.pageSubtitle {
+  color: hsl(var(--text-secondary));
+  font-size: 14px;
+  margin: 0;
+}
+
+/* ─── Profile Card ───────────────────────────── */
+.profileCard {
+  background: hsl(var(--card-bg));
+  border: 1px solid hsl(var(--border-subtle));
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.profileHeader {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, hsl(var(--accent-primary)), hsl(var(--accent-secondary)));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.profileInfo h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: hsl(var(--text-primary));
+}
+
+.profileInfo p {
+  font-size: 13px;
+  color: hsl(var(--text-secondary));
+  margin: 0;
+}
+
+.profileMeta {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metaLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: hsl(var(--text-secondary));
+  font-weight: 600;
+}
+
+.metaValue {
+  font-size: 14px;
+  color: hsl(var(--text-primary));
+  font-weight: 500;
+}
+
+/* ─── Subscription Card ──────────────────────── */
+.subscriptionCard {
+  background: hsl(var(--card-bg));
+  border: 1px solid hsl(var(--border-subtle));
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: hsl(var(--text-primary));
+}
+
+.cardDescription {
+  font-size: 13px;
+  color: hsl(var(--text-secondary));
+  margin: 0 0 24px;
+}
+
+/* ─── Current Plan Banner ────────────────────── */
+.currentPlanBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, hsla(var(--accent-primary), 0.08), hsla(var(--accent-secondary), 0.06));
+  border: 1px solid hsla(var(--accent-primary), 0.2);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+
+.currentPlanInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.currentPlanLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: hsl(var(--text-secondary));
+  font-weight: 600;
+}
+
+.currentPlanName {
+  font-size: 22px;
+  font-weight: 700;
+  color: hsl(var(--text-primary));
+}
+
+.currentPlanPrice {
+  font-size: 14px;
+  color: hsl(var(--accent-primary));
+  font-weight: 500;
+}
+
+.planBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badgeFree {
+  background: hsla(var(--text-secondary), 0.1);
+  color: hsl(var(--text-secondary));
+}
+
+.badgePro {
+  background: linear-gradient(135deg, hsl(var(--accent-primary)), hsl(var(--accent-secondary)));
+  color: white;
+}
+
+.badgeEnterprise {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+}
+
+/* ─── Pricing Cards Grid ─────────────────────── */
+.pricingGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .pricingGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pricingCard {
+  background: hsla(var(--card-bg), 0.6);
+  border: 1px solid hsl(var(--border-subtle));
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.2s, transform 0.2s;
+  position: relative;
+}
+
+.pricingCard:hover {
+  border-color: hsla(var(--accent-primary), 0.3);
+  transform: translateY(-2px);
+}
+
+.pricingCardActive {
+  border-color: hsl(var(--accent-primary));
+  background: linear-gradient(135deg, hsla(var(--accent-primary), 0.05), hsla(var(--accent-secondary), 0.03));
+}
+
+.pricingCardPopular {
+  border-color: hsl(var(--accent-primary));
+  box-shadow: 0 0 20px hsla(var(--accent-primary), 0.15);
+}
+
+.popularTag {
+  position: absolute;
+  top: -10px;
+  right: 16px;
+  background: linear-gradient(135deg, hsl(var(--accent-primary)), hsl(var(--accent-secondary)));
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 12px;
+  border-radius: 10px;
+}
+
+.planName {
+  font-size: 16px;
+  font-weight: 600;
+  color: hsl(var(--text-primary));
+  margin: 0 0 8px;
+}
+
+.planPrice {
+  font-size: 32px;
+  font-weight: 700;
+  color: hsl(var(--text-primary));
+  margin: 0 0 4px;
+}
+
+.planPrice span {
+  font-size: 14px;
+  font-weight: 400;
+  color: hsl(var(--text-secondary));
+}
+
+.planDesc {
+  font-size: 13px;
+  color: hsl(var(--text-secondary));
+  margin: 0 0 16px;
+  line-height: 1.4;
+}
+
+.planFeatures {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.planFeature {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: hsl(var(--text-secondary));
+}
+
+.planFeature svg {
+  color: hsl(var(--accent-primary));
+  flex-shrink: 0;
+}
+
+.planDivider {
+  height: 1px;
+  background: hsl(var(--border-subtle));
+  margin: 0 0 16px;
+}
+
+/* ─── WhatsApp Button ────────────────────────── */
+.whatsappBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  transition: all 0.2s;
+  background: #25D366;
+  color: white;
+}
+
+.whatsappBtn:hover {
+  background: #1da851;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+}
+
+.currentPlanBtn {
+  background: hsla(var(--text-secondary), 0.1);
+  color: hsl(var(--text-secondary));
+  cursor: default;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  width: 100%;
+  text-align: center;
+}
+
+.enterpriseBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid hsla(var(--accent-primary), 0.3);
+  text-decoration: none;
+  transition: all 0.2s;
+  background: transparent;
+  color: hsl(var(--accent-primary));
+}
+
+.enterpriseBtn:hover {
+  background: hsla(var(--accent-primary), 0.08);
+  transform: translateY(-1px);
+}
+
+/* ─── Info Box ───────────────────────────────── */
+.infoBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: hsla(var(--accent-primary), 0.06);
+  border: 1px solid hsla(var(--accent-primary), 0.15);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.infoIcon {
+  color: hsl(var(--accent-primary));
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.infoText {
+  font-size: 13px;
+  color: hsl(var(--text-secondary));
+  line-height: 1.5;
+}
+
+.infoText strong {
+  color: hsl(var(--text-primary));
+}
+
+/* ─── Loading ────────────────────────────────── */
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid hsl(var(--border-subtle));
+  border-top-color: hsl(var(--accent-primary));
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

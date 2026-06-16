@@ -41,7 +41,7 @@ export const PLAN_LIMITS: Record<string, PlanLimits> = {
     maxLlmTokensMonthly: 500_000,
     apiRateLimitRpm: 120,
     dataRetentionDays: 90,
-    priceMonthyCents: 2900, // $29/mo
+    priceMonthyCents: 4900, // $49/mo
   },
   enterprise: {
     name: 'Enterprise',

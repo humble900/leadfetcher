@@ -25,6 +25,7 @@ router.get('/tenants', async (req, res, next) => {
       status: tenants.status,
       planName: plans.name,
       planId: tenants.planId,
+      customLimits: tenants.customLimits,
       createdAt: tenants.createdAt,
       userCount: sql<number>`(SELECT count(*)::int FROM users WHERE users.tenant_id = ${tenants.id})`,
       jobCount: sql<number>`(SELECT count(*)::int FROM jobs WHERE jobs.tenant_id = ${tenants.id})`,
@@ -42,27 +43,36 @@ router.get('/tenants', async (req, res, next) => {
   }
 });
 
-// ─── PUT /api/admin/tenants/:id/plan — Change tenant plan ───
+// ─── PUT /api/admin/tenants/:id/plan — Change tenant plan & limits ───
 router.put('/tenants/:id/plan', async (req, res, next) => {
   try {
     const db = getDb();
-    const { planId } = req.body;
+    const { planId, customLimits } = req.body;
 
-    if (!planId) {
-      res.status(400).json({ success: false, error: 'planId is required' });
+    const updateFields: any = { updatedAt: new Date() };
+
+    if (planId) {
+      // Verify plan exists
+      const [plan] = await db.select().from(plans).where(eq(plans.id, planId)).limit(1);
+      if (!plan) {
+        res.status(404).json({ success: false, error: 'Plan not found' });
+        return;
+      }
+      updateFields.planId = planId;
+    }
+
+    if (customLimits !== undefined) {
+      updateFields.customLimits = customLimits;
+    }
+
+    if (!planId && customLimits === undefined) {
+      res.status(400).json({ success: false, error: 'planId or customLimits is required' });
       return;
     }
 
-    // Verify plan exists
-    const [plan] = await db.select().from(plans).where(eq(plans.id, planId)).limit(1);
-    if (!plan) {
-      res.status(404).json({ success: false, error: 'Plan not found' });
-      return;
-    }
-
-    // Update tenant plan
+    // Update tenant plan and/or custom limits
     const [updated] = await db.update(tenants)
-      .set({ planId, updatedAt: new Date() })
+      .set(updateFields)
       .where(eq(tenants.id, req.params.id!))
       .returning();
 
@@ -75,7 +85,7 @@ router.put('/tenants/:id/plan', async (req, res, next) => {
     const redis = getRedis();
     await redis.del(`plan:${req.params.id}`);
 
-    logger.info({ tenantId: req.params.id, newPlanId: planId }, 'Tenant plan updated');
+    logger.info({ tenantId: req.params.id, ...updateFields }, 'Tenant plan/limits updated');
     res.json({ success: true, data: updated });
   } catch (err) {
     next(err);
@@ -102,30 +112,60 @@ router.get('/stats', async (_req, res, next) => {
 });
 
 // ─── Platform settings (in-memory, persists per server lifecycle) ─
-let platformSettings = {
+export let platformSettings = {
   paidMode: false,
   maintenanceMode: false,
   defaultPlanName: 'free',
   maxTenantsAllowed: 10000,
   signupsEnabled: true,
+  paymentMode: 'manual' as 'manual' | 'automatic',
+  whatsappNumber: '+14094229714',
 };
 
 // ─── GET /api/admin/settings — Get platform settings ─────────
 router.get('/settings', async (_req, res) => {
-  res.json({ success: true, data: platformSettings });
+  res.json({
+    success: true,
+    data: {
+      ...platformSettings,
+      paidVersionActive: platformSettings.paidMode,
+    },
+  });
 });
 
-// ─── PUT /api/admin/settings — Update platform settings ──────
-router.put('/settings', async (req, res) => {
-  const allowed = ['paidMode', 'maintenanceMode', 'defaultPlanName', 'maxTenantsAllowed', 'signupsEnabled'];
+// ─── PUT/POST /api/admin/settings — Update platform settings ──
+const updateSettingsHandler = async (req: any, res: any) => {
+  const allowed = [
+    'paidMode',
+    'paidVersionActive',
+    'maintenanceMode',
+    'defaultPlanName',
+    'maxTenantsAllowed',
+    'signupsEnabled',
+    'paymentMode',
+    'whatsappNumber',
+  ];
   for (const key of allowed) {
     if (req.body[key] !== undefined) {
-      (platformSettings as any)[key] = req.body[key];
+      if (key === 'paidVersionActive') {
+        platformSettings.paidMode = req.body[key];
+      } else {
+        (platformSettings as any)[key] = req.body[key];
+      }
     }
   }
   logger.info({ settings: platformSettings }, 'Platform settings updated');
-  res.json({ success: true, data: platformSettings });
-});
+  res.json({
+    success: true,
+    data: {
+      ...platformSettings,
+      paidVersionActive: platformSettings.paidMode,
+    },
+  });
+};
+
+router.put('/settings', updateSettingsHandler);
+router.post('/settings', updateSettingsHandler);
 
 // ─── GET /api/admin/plans — List all plans ───────────────────
 router.get('/plans', async (_req, res, next) => {

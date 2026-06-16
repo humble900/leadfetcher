@@ -8,6 +8,8 @@ import styles from './AdminSettings.module.css';
 
 interface AdminSettings {
   paidVersionActive: boolean;
+  paymentMode: 'manual' | 'automatic';
+  whatsappNumber: string;
 }
 
 interface SystemStats {
@@ -24,6 +26,7 @@ export default function AdminSettingsPage() {
   const router = useRouter();
   const [settings, setSettings] = useState<AdminSettings | null>(null);
   const [stats, setStats] = useState<SystemStats | null>(null);
+  const [whatsappInput, setWhatsappInput] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showSaved, setShowSaved] = useState(false);
@@ -64,20 +67,25 @@ export default function AdminSettingsPage() {
     fetchData();
   }, [user, router, fetchData]);
 
-  const handleTogglePaidVersion = async () => {
+  useEffect(() => {
+    if (settings) {
+      setWhatsappInput(settings.whatsappNumber || '');
+    }
+  }, [settings]);
+
+  const handleUpdateSetting = async (key: string, value: any) => {
     if (!settings) return;
 
-    const newValue = !settings.paidVersionActive;
     setSaving(true);
     setShowSaved(false);
 
     try {
       const res = await api.post<any>('/admin/settings', {
-        paidVersionActive: newValue,
+        [key]: value,
       });
 
       if (res.success) {
-        setSettings({ paidVersionActive: newValue });
+        setSettings(res.data);
         setShowSaved(true);
         setTimeout(() => setShowSaved(false), 3000);
       }
@@ -86,6 +94,15 @@ export default function AdminSettingsPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleTogglePaidVersion = () => {
+    if (!settings) return;
+    handleUpdateSetting('paidVersionActive', !settings.paidVersionActive);
+  };
+
+  const handleSaveWhatsappNumber = async () => {
+    await handleUpdateSetting('whatsappNumber', whatsappInput);
   };
 
   if (loading) {
@@ -199,6 +216,77 @@ export default function AdminSettingsPage() {
             tiers and enable billing.
           </div>
         </div>
+      </div>
+
+      {/* ─── Payment Mode Configuration Card ─────────── */}
+      <div className={styles.settingsCard}>
+        <h2 className={styles.cardTitle}>Payment Mode Configuration</h2>
+        <p className={styles.cardDescription}>
+          Choose how users upgrade their subscription plans.
+        </p>
+
+        <div className={styles.paymentModeToggleGroup}>
+          <div
+            className={`${styles.modeOption} ${settings?.paymentMode === 'manual' ? styles.modeOptionActive : ''}`}
+            onClick={() => handleUpdateSetting('paymentMode', 'manual')}
+          >
+            <div className={styles.modeOptionHeader}>
+              <span className={styles.modeOptionTitle}>Manual Upgrades</span>
+              <input
+                type="radio"
+                checked={settings?.paymentMode === 'manual'}
+                onChange={() => {}}
+                readOnly
+              />
+            </div>
+            <p className={styles.modeOptionDesc}>
+              Users are directed to contact support via a pre-filled WhatsApp link to complete their purchase.
+            </p>
+          </div>
+
+          <div
+            className={`${styles.modeOption} ${settings?.paymentMode === 'automatic' ? styles.modeOptionActive : ''}`}
+            onClick={() => handleUpdateSetting('paymentMode', 'automatic')}
+          >
+            <div className={styles.modeOptionHeader}>
+              <span className={styles.modeOptionTitle}>Automatic Upgrades</span>
+              <input
+                type="radio"
+                checked={settings?.paymentMode === 'automatic'}
+                onChange={() => {}}
+                readOnly
+              />
+            </div>
+            <p className={styles.modeOptionDesc}>
+              Users are directed to pay automatically using a payment gateway integration (Stripe checkout).
+            </p>
+          </div>
+        </div>
+
+        {settings?.paymentMode === 'manual' && (
+          <div className={styles.inputGroup} style={{ marginTop: '20px' }}>
+            <label className={styles.inputLabel}>WhatsApp Support Number</label>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <input
+                type="text"
+                className={styles.textInput}
+                value={whatsappInput}
+                onChange={(e) => setWhatsappInput(e.target.value)}
+                placeholder="+14094229714"
+              />
+              <button
+                className={styles.saveBtn}
+                onClick={handleSaveWhatsappNumber}
+                disabled={saving}
+              >
+                Save Number
+              </button>
+            </div>
+            <p className={styles.inputHelp}>
+              Enter the support WhatsApp number (including country code, e.g. +14094229714) that users will message.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* ─── System Stats Card ─────────────────── */}

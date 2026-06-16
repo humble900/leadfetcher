@@ -3,12 +3,16 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
 import { useAuth } from '../../components/layout/AuthContext';
+import { useRouter } from 'next/navigation';
+import UpgradePrompt from '../../components/shared/UpgradePrompt';
 import styles from './Usage.module.css';
 
 export default function UsagePage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [usage, setUsage] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [upgradePrompt, setUpgradePrompt] = useState<{ name: string; used: number; limit: number } | null>(null);
 
   useEffect(() => {
     async function loadUsage() {
@@ -53,8 +57,26 @@ export default function UsagePage() {
     return num.toLocaleString();
   };
 
+  // Check if any metric is at 100%
+  const maxedMetrics = [
+    { name: 'Leads Extracted', ...limits.leadsMonthly },
+    { name: 'Crawl Jobs', ...limits.jobsMonthly },
+    { name: 'CSV Exports', ...limits.exportsMonthly },
+    { name: 'LLM Tokens', ...limits.llmTokensMonthly },
+  ].filter(m => m.percentage >= 100);
+
   return (
     <div className={styles.container}>
+      {upgradePrompt && (
+        <UpgradePrompt
+          limitName={upgradePrompt.name}
+          used={upgradePrompt.used}
+          limit={upgradePrompt.limit}
+          onClose={() => setUpgradePrompt(null)}
+          userEmail={user?.email}
+        />
+      )}
+
       {/* Current plan card */}
       <div className={styles.planCard}>
         <div className={styles.planDetails}>
@@ -68,11 +90,43 @@ export default function UsagePage() {
         </div>
         <button
           className={styles.upgradeBtn}
-          onClick={() => alert('Upgrades are currently managed by workspace owners. Contact admin@leadfetcher.com for customizations.')}
+          onClick={() => router.push('/settings')}
         >
           Upgrade Quota Plan
         </button>
       </div>
+
+      {/* Maxed metrics warning */}
+      {maxedMetrics.length > 0 && (
+        <div
+          style={{
+            background: 'hsla(0 80% 60% / 0.08)',
+            border: '1px solid hsla(0 80% 60% / 0.2)',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            marginBottom: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            cursor: 'pointer',
+          }}
+          onClick={() => setUpgradePrompt({ name: maxedMetrics[0].name, used: maxedMetrics[0].used, limit: maxedMetrics[0].limit })}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="hsl(0 80% 60%)" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <span style={{ color: 'hsl(0 80% 60%)', fontWeight: 600, fontSize: '14px' }}>
+              {maxedMetrics.length} quota{maxedMetrics.length > 1 ? 's' : ''} reached 100% — click to upgrade
+            </span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="hsl(0 80% 60%)" strokeWidth="2">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </div>
+      )}
 
       <h3 style={{ fontSize: '20px', fontWeight: 600 }}>Month-to-Date Usage Metrics</h3>
 

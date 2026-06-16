@@ -1,0 +1,419 @@
+.container {
+  padding: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.pageTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: hsl(var(--text-primary));
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+}
+
+.pageSubtitle {
+  font-size: 14px;
+  color: hsl(var(--text-secondary));
+  margin: 0;
+}
+
+/* ─── Search & Actions ──────────────────────── */
+
+.actionsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.searchWrapper {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+}
+
+.searchInput {
+  width: 100%;
+  background-color: hsl(var(--bg-surface-elevated));
+  border: 1px solid hsl(var(--border-color));
+  border-radius: var(--radius-md);
+  padding: 12px 16px 12px 40px;
+  font-size: 14px;
+  color: hsl(var(--text-primary));
+  transition: var(--transition-smooth);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: hsl(var(--accent-primary));
+  box-shadow: 0 0 0 3px hsl(var(--accent-primary) / 0.1);
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: hsl(var(--text-muted));
+  pointer-events: none;
+}
+
+/* ─── Table ─────────────────────────────────── */
+
+.tableCard {
+  background-color: hsl(var(--bg-surface));
+  border: 1px solid hsl(var(--border-color));
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.th {
+  padding: 16px 24px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: hsl(var(--text-secondary));
+  border-bottom: 1px solid hsl(var(--border-color));
+  background-color: hsl(var(--bg-surface-elevated));
+}
+
+.td {
+  padding: 18px 24px;
+  font-size: 14px;
+  color: hsl(var(--text-primary));
+  border-bottom: 1px solid hsl(var(--border-color));
+  vertical-align: middle;
+}
+
+.tenantRow {
+  transition: background-color 0.2s ease;
+}
+
+.tenantRow:hover {
+  background-color: hsl(var(--bg-surface-elevated) / 0.5);
+}
+
+.tenantName {
+  font-weight: 600;
+  color: hsl(var(--text-primary));
+}
+
+.tenantId {
+  font-family: monospace;
+  font-size: 11px;
+  color: hsl(var(--text-muted));
+  margin-top: 4px;
+}
+
+.metaBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: hsl(var(--text-secondary));
+}
+
+/* ─── Plan Badges ───────────────────────────── */
+
+.planBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.planBadgeFree {
+  background-color: hsl(var(--border-color));
+  color: hsl(var(--text-secondary));
+}
+
+.planBadgePro {
+  background-color: hsl(var(--accent-primary) / 0.1);
+  color: hsl(var(--accent-primary));
+  border: 1px solid hsl(var(--accent-primary) / 0.2);
+}
+
+.planBadgeEnterprise {
+  background-color: hsl(var(--accent-amber) / 0.1);
+  color: hsl(var(--accent-amber));
+  border: 1px solid hsl(var(--accent-amber) / 0.2);
+}
+
+/* ─── Buttons ───────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  border: none;
+}
+
+.btnPrimary {
+  background: var(--accent-primary-gradient);
+  color: #fff;
+}
+
+.btnPrimary:hover {
+  opacity: 0.9;
+}
+
+.btnSecondary {
+  background-color: hsl(var(--bg-surface-elevated));
+  color: hsl(var(--text-primary));
+  border: 1px solid hsl(var(--border-color));
+}
+
+.btnSecondary:hover {
+  background-color: hsl(var(--border-color));
+}
+
+.editBtn {
+  color: hsl(var(--accent-primary));
+  background: none;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.2s;
+}
+
+.editBtn:hover {
+  background-color: hsl(var(--accent-primary) / 0.08);
+}
+
+/* ─── Modal ─────────────────────────────────── */
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+.modal {
+  background-color: hsl(var(--bg-surface));
+  border: 1px solid hsl(var(--border-color));
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.modalHeader {
+  padding: 24px;
+  border-bottom: 1px solid hsl(var(--border-color));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: hsl(var(--text-primary));
+  margin: 0;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: hsl(var(--text-secondary));
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.closeBtn:hover {
+  background-color: hsl(var(--bg-surface-elevated));
+  color: hsl(var(--text-primary));
+}
+
+.modalBody {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modalFooter {
+  padding: 20px 24px;
+  border-top: 1px solid hsl(var(--border-color));
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* ─── Settings / Forms ──────────────────────── */
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: hsl(var(--text-secondary));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 24px 0 16px;
+}
+
+.sectionTitle:first-of-type {
+  margin-top: 0;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formLabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: hsl(var(--text-primary));
+  margin-bottom: 8px;
+}
+
+.selectInput {
+  width: 100%;
+  background-color: hsl(var(--bg-surface-elevated));
+  border: 1px solid hsl(var(--border-color));
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 14px;
+  color: hsl(var(--text-primary));
+}
+
+.selectInput:focus {
+  outline: none;
+  border-color: hsl(var(--accent-primary));
+}
+
+.limitsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.inputField {
+  width: 100%;
+  background-color: hsl(var(--bg-surface-elevated));
+  border: 1px solid hsl(var(--border-color));
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 14px;
+  color: hsl(var(--text-primary));
+}
+
+.inputField:focus {
+  outline: none;
+  border-color: hsl(var(--accent-primary));
+}
+
+.helpText {
+  font-size: 12px;
+  color: hsl(var(--text-muted));
+  margin-top: 4px;
+}
+
+/* Toggle override */
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background-color: hsl(var(--bg-surface-elevated));
+  border-radius: var(--radius-md);
+  border: 1px solid hsl(var(--border-color));
+}
+
+/* ─── Spinner ───────────────────────────────── */
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid hsl(var(--border-color));
+  border-top-color: hsl(var(--accent-primary));
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loadingWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.errorText {
+  color: hsl(var(--status-error));
+  font-size: 14px;
+  padding: 16px;
+  background-color: hsl(var(--status-error-bg));
+  border: 1px solid hsl(var(--status-error) / 0.2);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background-color: hsl(var(--bg-surface-elevated));
+  border: 1px solid hsl(var(--accent-green));
+  color: hsl(var(--text-primary));
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1100;
+}
