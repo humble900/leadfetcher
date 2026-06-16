@@ -96,3 +96,37 @@ We resolved the deployment blockers and successfully brought the entire monorepo
   npm run db:seed
   ```
 - **Deployment Status**: All 5 services (databases and applications) are currently fully verified, compiled, and `● Online` in production.
+
+---
+
+## 7. Manual Subscription Management System & Limits Overrides
+
+We designed and built a premium, manual subscription upgrading and management system that lets regular users request upgrades via support, lets administrators toggle upgrade settings, and allows superadmins to customize tenant limits from a central dashboard:
+
+### 7.1 Database Limits & Overrides Schema
+- Added a `customLimits` column (`jsonb` format) to the `tenants` table schema in both [schema.ts (API)](file:///c:/Users/USER/leadfetcher/apps/api/src/db/schema.ts) and [db-schema.ts (Worker)](file:///c:/Users/USER/leadfetcher/apps/worker/src/processors/db-schema.ts).
+- Generated a new Drizzle Kit SQL migration (`0003_aspiring_nomad.sql`) and successfully ran it (`npm run db:migrate`) to alter the database table in production.
+- Refactored `limitMiddleware` in `apps/api/src/middleware/limit.middleware.ts` to inspect the tenant's `customLimits` and apply field-specific limits (e.g. `maxLeadsMonthly`, `maxJobsMonthly`) if they override the default plan limits.
+- Updated [jobs.routes.ts](file:///c:/Users/USER/leadfetcher/apps/api/src/routes/jobs.routes.ts) and [usage.service.ts](file:///c:/Users/USER/leadfetcher/apps/api/src/services/usage.service.ts) to resolve limit indicators using the dynamic database overrides and pass correct values to worker execution threads through BullMQ.
+
+### 7.2 Dynamic Subscription Info API & User Settings Page
+- Created a new user-facing `/settings` page at [page.tsx](file:///c:/Users/USER/leadfetcher/apps/dashboard/src/app/settings/page.tsx) with glassmorphism layout and design cards for Free, Pro, and Enterprise plan comparison.
+- Added a `GET /api/usage/subscription` API route to retrieve comparison details, current tenant plan, the active payment mode, and the dynamic WhatsApp support contact number.
+- Linked user upgrade buttons to WhatsApp at `https://wa.me/<number>` using pre-filled request templates containing the tenant email and destination plan name.
+- Integrated the User Avatar in the header and added a new footer link in the Sidebar right above Logout to navigate directly to the new Settings workspace.
+
+### 7.3 Centralized Superadmin Controls & Payment Mode Toggle
+- Added a central "Tenant Subscriptions" dashboard at [admin/subscriptions/page.tsx](file:///c:/Users/USER/leadfetcher/apps/dashboard/src/app/admin/subscriptions/page.tsx) with Search and Workspace management filters.
+- Built a premium modal editor that allows superadmins to change any workspace's plan tier and assign custom numeric overrides for leads monthly, job monthly, max pages, concurrent crawls, and LLM token usage.
+- Created a "Payment Mode Configuration" panel in Admin Settings to toggle between **Manual** and **Automatic** upgrade modes.
+- Added a dynamic WhatsApp Support Number editor inside the Admin Settings page to easily manage the recipient number globally.
+- Implemented compatibility handlers in the admin settings API routes to map legacy frontend parameters (`paidVersionActive` <-> `paidMode`) and accept both `POST` and `PUT` request types.
+
+---
+
+## 8. Verification Results
+
+All workspaces built successfully on type-checks and Next.js static page generation:
+- ✅ **Monorepo Build**: `npm run build` completed successfully.
+- ✅ **API & Worker Compilation**: All backend services compiled with no type errors.
+- ✅ **Dashboard Production Bundle**: Next.js turbopack built all 14 routes successfully.
