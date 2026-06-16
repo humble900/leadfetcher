@@ -62,7 +62,19 @@ export default function JobDetailPage() {
   useEffect(() => {
     if (!id || loading || error) return;
 
-    const streamUrl = `${api.apiUrl}/jobs/${id}/stream`;
+    // Only connect SSE for active jobs
+    const activeStatuses = ['running', 'queued', 'paused'];
+    if (job && !activeStatuses.includes(job.status)) return;
+
+    // EventSource can't send custom headers, so pass the token via query param
+    let streamUrl = `${api.apiUrl}/jobs/${id}/stream`;
+    try {
+      const token = localStorage.getItem('leadfetcher_token');
+      if (token) {
+        streamUrl += `?token=${encodeURIComponent(token)}`;
+      }
+    } catch {}
+
     const eventSource = new EventSource(streamUrl, {
       withCredentials: true,
     });
@@ -130,8 +142,24 @@ export default function JobDetailPage() {
       }
     });
 
-    eventSource.onerror = (err) => {
-      console.error('EventSource failed:', err);
+    eventSource.addEventListener('done', (e: MessageEvent) => {
+      // Job completed/failed — reload final state
+      setSseConnected(false);
+      eventSource.close();
+      setTimeout(async () => {
+        try {
+          const res = await api.get<any>(`/jobs/${id}`);
+          if (res.success && res.data) {
+            setJob(res.data);
+          }
+        } catch (err) {
+          console.error('Error reloading final job state', err);
+        }
+      }, 500);
+    });
+
+    eventSource.onerror = () => {
+      // SSE connection lost — mark as offline but don't crash
       setSseConnected(false);
       eventSource.close();
     };
@@ -139,7 +167,7 @@ export default function JobDetailPage() {
     return () => {
       eventSource.close();
     };
-  }, [id, loading, error]);
+  }, [id, loading, error, job?.status]);
 
   const handlePause = async () => {
     try {

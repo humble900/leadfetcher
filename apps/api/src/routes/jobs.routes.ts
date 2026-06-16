@@ -7,6 +7,9 @@ import { getDb } from '../config/database.js';
 import { plans, tenants } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
 import { getJobsQueue } from '../config/queue.js';
+import { Redis } from 'ioredis';
+import { getEnv } from '../config/env.js';
+import { verifyToken } from '../utils/jwt.js';
 
 const router = Router();
 
@@ -96,6 +99,104 @@ router.get('/', async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+});
+
+// ─── GET /api/jobs/:id/stream — Real-time SSE event stream ──
+// This MUST come before the /:id route so Express doesn't match "stream" as an id.
+router.get('/:id/stream', async (req, res) => {
+  const jobId = req.params.id!;
+
+  // EventSource can't send custom headers, so support ?token= query param as fallback
+  // Cookie-based auth is already handled by authMiddleware upstream.
+  // If authMiddleware didn't populate req.user (e.g. token query param scenario),
+  // we verify here. But since jobs routes have authMiddleware globally, req.user is set.
+  if (!req.user || !req.tenantId) {
+    // Attempt token from query param
+    const queryToken = req.query.token as string;
+    if (queryToken) {
+      try {
+        const payload = verifyToken(queryToken);
+        req.user = payload;
+        req.tenantId = payload.tenantId;
+      } catch {
+        res.status(401).json({ success: false, error: 'Invalid token' });
+        return;
+      }
+    } else {
+      res.status(401).json({ success: false, error: 'Authentication required' });
+      return;
+    }
+  }
+
+  // Verify the job belongs to this tenant
+  try {
+    await jobService.getJobById(req.tenantId!, jobId);
+  } catch (err: any) {
+    if (err.statusCode === 404) {
+      res.status(404).json({ success: false, error: 'Job not found' });
+      return;
+    }
+    res.status(500).json({ success: false, error: 'Internal server error' });
+    return;
+  }
+
+  // Set SSE headers
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'X-Accel-Buffering': 'no', // Disable nginx buffering
+  });
+
+  // Send initial connected event
+  res.write(`event: connected\ndata: ${JSON.stringify({ jobId, timestamp: new Date().toISOString() })}\n\n`);
+
+  // Create a dedicated Redis subscriber for this SSE connection
+  const subscriber = new Redis(getEnv().REDIS_URL, {
+    lazyConnect: false,
+  });
+  const channel = `job:${jobId}:events`;
+
+  subscriber.subscribe(channel, (err) => {
+    if (err) {
+      console.error(`Failed to subscribe to ${channel}:`, err);
+      res.write(`event: error\ndata: ${JSON.stringify({ message: 'Failed to connect to event stream' })}\n\n`);
+      res.end();
+      return;
+    }
+  });
+
+  subscriber.on('message', (_ch: string, message: string) => {
+    try {
+      const parsed = JSON.parse(message);
+      const eventType = parsed.type || 'message';
+      res.write(`event: ${eventType}\ndata: ${JSON.stringify(parsed.data)}\n\n`);
+
+      // If job is done, close the stream after a brief delay
+      if (eventType === 'done') {
+        setTimeout(() => {
+          subscriber.unsubscribe(channel).catch(() => {});
+          subscriber.quit().catch(() => {});
+          res.end();
+        }, 500);
+      }
+    } catch (e) {
+      // Forward raw message
+      res.write(`data: ${message}\n\n`);
+    }
+  });
+
+  // Send keep-alive pings every 30 seconds to prevent timeouts
+  const keepAliveInterval = setInterval(() => {
+    res.write(`: keep-alive\n\n`);
+  }, 30000);
+
+  // Cleanup when client disconnects
+  req.on('close', () => {
+    clearInterval(keepAliveInterval);
+    subscriber.unsubscribe(channel).catch(() => {});
+    subscriber.quit().catch(() => {});
+  });
 });
 
 // ─── GET /api/jobs/:id — Get a single job ────────────────────

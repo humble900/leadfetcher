@@ -3,6 +3,9 @@
  *
  * Runs as a SEPARATE process from the API server.
  * Has its own DB and Redis connections.
+ *
+ * Publishes real-time progress/activity events via Redis Pub/Sub
+ * so the API can relay them to dashboards over SSE.
  */
 
 import './config/dotenv.js';
@@ -25,13 +28,19 @@ const connection = new Redis(REDIS_URL, {
   maxRetriesPerRequest: null, // Required by BullMQ
 });
 
+// Separate Redis client for Pub/Sub publishing (cannot share with BullMQ connection)
+const pubClient = new Redis(REDIS_URL);
+
 const worker = new Worker(
   'scrape-jobs',
   async (job: Job) => {
     logger.info({ jobId: job.id, data: job.data }, 'Processing job');
 
+    const jobId = job.data.jobId;
+    const channel = `job:${jobId}:events`;
+
     await processJob({
-      jobId: job.data.jobId,
+      jobId,
       tenantId: job.data.tenantId,
       targetUrl: job.data.targetUrl,
       config: job.data.config || {},
@@ -40,14 +49,30 @@ const worker = new Worker(
       redisUrl: REDIS_URL,
       onProgress: (progress) => {
         job.updateProgress(progress);
+        // Publish progress event via Redis pub/sub for SSE
+        pubClient.publish(channel, JSON.stringify({
+          type: 'progress',
+          data: progress,
+        })).catch((err) => logger.error({ err }, 'Failed to publish progress'));
       },
       onActivity: (agent, message) => {
-        logger.info({ agent, message, jobId: job.data.jobId }, 'Agent activity');
+        logger.info({ agent, message, jobId }, 'Agent activity');
+        // Publish activity event via Redis pub/sub for SSE
+        pubClient.publish(channel, JSON.stringify({
+          type: 'activity',
+          data: { agent, message, timestamp: new Date().toISOString() },
+        })).catch((err) => logger.error({ err }, 'Failed to publish activity'));
       },
       onLead: (lead) => {
-        logger.debug({ vendorName: lead.vendorName, jobId: job.data.jobId }, 'Lead extracted');
+        logger.debug({ vendorName: lead.vendorName, jobId }, 'Lead extracted');
       },
     });
+
+    // Notify that the job has completed
+    pubClient.publish(channel, JSON.stringify({
+      type: 'done',
+      data: { status: 'completed' },
+    })).catch((err) => logger.error({ err }, 'Failed to publish done'));
   },
   {
     connection: connection as any,
@@ -66,6 +91,13 @@ worker.on('completed', (job) => {
 
 worker.on('failed', (job, error) => {
   logger.error({ jobId: job?.id, error: error.message }, 'Job failed');
+  // Publish failure event so SSE clients know the job is done
+  if (job?.data?.jobId) {
+    pubClient.publish(`job:${job.data.jobId}:events`, JSON.stringify({
+      type: 'done',
+      data: { status: 'failed', error: error.message },
+    })).catch(() => {});
+  }
 });
 
 worker.on('error', (error) => {
@@ -78,6 +110,7 @@ logger.info('🔧 Worker started, listening for scrape jobs...');
 async function shutdown(signal: string) {
   logger.info({ signal }, 'Worker shutting down...');
   await worker.close();
+  await pubClient.quit();
   await connection.quit();
   process.exit(0);
 }
