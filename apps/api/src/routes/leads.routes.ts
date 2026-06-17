@@ -3,6 +3,9 @@ import { leadService } from '../services/lead.service.js';
 import { LeadQuerySchema } from '@leadfetcher/shared';
 import { handleValidationError } from '../middleware/errorHandler.middleware.js';
 import { limitMiddleware } from '../middleware/limit.middleware.js';
+import { eq, and, desc, sql, ilike, or, gte } from 'drizzle-orm';
+import { getDb } from '../config/database.js';
+import { leads } from '../db/schema.js';
 
 const router = Router();
 
@@ -92,6 +95,115 @@ router.get('/export/csv',
           row.location, row.businessCategory, row.productName, row.price,
           row.qualityScore, row.listingUrl,
         ].map(v => `"${(v ?? '').toString().replace(/"/g, '""')}"`);
+        res.write(values.join(',') + '\n');
+      }
+
+      res.end();
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+// ─── POST /api/leads/export — Export leads with filter, format, and custom columns ────
+router.post('/export',
+  limitMiddleware('exports_monthly', 'maxExportsMonthly'),
+  async (req, res, next) => {
+    try {
+      const { format = 'csv', query = {}, columns = [] } = req.body;
+
+      // 1. Get filtered leads using the same criteria as getLeads but without pagination
+      const db = getDb();
+      const conditions: any[] = [eq(leads.tenantId, req.tenantId!)];
+
+      const jobId = query.jobId as string | undefined;
+      const search = query.search as string | undefined;
+      const category = query.businessCategory as string | undefined;
+      const hasEmail = query.hasEmail;
+      const hasPhone = query.hasPhone;
+      const minScore = query.minQualityScore ? parseInt(query.minQualityScore as string) : undefined;
+
+      if (jobId) conditions.push(eq(leads.jobId, jobId));
+      if (hasEmail === true || hasEmail === 'true') {
+        conditions.push(sql`${leads.email} IS NOT NULL AND ${leads.email} != ''`);
+      } else if (hasEmail === false || hasEmail === 'false') {
+        conditions.push(sql`${leads.email} IS NULL OR ${leads.email} = ''`);
+      }
+      if (hasPhone === true || hasPhone === 'true') {
+        conditions.push(sql`${leads.phone} IS NOT NULL AND ${leads.phone} != ''`);
+      } else if (hasPhone === false || hasPhone === 'false') {
+        conditions.push(sql`${leads.phone} IS NULL OR ${leads.phone} = ''`);
+      }
+      if (minScore !== undefined && !isNaN(minScore)) {
+        conditions.push(gte(leads.qualityScore, minScore));
+      }
+      if (category) {
+        conditions.push(eq(leads.businessCategory, category));
+      }
+      if (search) {
+        conditions.push(or(
+          ilike(leads.vendorName, `%${search}%`),
+          ilike(leads.email, `%${search}%`),
+          ilike(leads.phone, `%${search}%`),
+          ilike(leads.location, `%${search}%`),
+        ));
+      }
+
+      const rows = await db.select()
+        .from(leads)
+        .where(and(...conditions))
+        .orderBy(desc(leads.createdAt));
+
+      // 2. Format columns map
+      const columnMap: Record<string, string> = {
+        vendorName: 'Vendor / Company Name',
+        email: 'Email Address',
+        phone: 'Phone Number',
+        whatsapp: 'WhatsApp Number',
+        website: 'Website',
+        location: 'Location',
+        address: 'Street Address',
+        businessCategory: 'Business Category',
+        productName: 'Product Name',
+        price: 'Price',
+        description: 'Description',
+        listingUrl: 'Source Page URL',
+        qualityScore: 'Quality Score',
+        isVerified: 'Verified Status',
+      };
+
+      const selectedKeys = columns.length > 0 ? columns : Object.keys(columnMap);
+
+      if (format === 'json') {
+        const mappedRows = rows.map((row: any) => {
+          const mapped: Record<string, any> = {};
+          selectedKeys.forEach((key: string) => {
+            mapped[key] = row[key] ?? null;
+          });
+          return mapped;
+        });
+
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', `attachment; filename="leads-${Date.now()}.json"`);
+        res.json(mappedRows);
+        return;
+      }
+
+      // Default CSV format
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="leads-${Date.now()}.csv"`);
+
+      // Write header row using human-friendly labels
+      const headers = selectedKeys.map((key: string) => columnMap[key] || key);
+      res.write(headers.join(',') + '\n');
+
+      // Write data rows
+      for (const row of rows as any[]) {
+        const values = selectedKeys.map((key: string) => {
+          const val = row[key];
+          if (val === null || val === undefined) return '""';
+          return `"${val.toString().replace(/"/g, '""')}"`;
+        });
         res.write(values.join(',') + '\n');
       }
 

@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 // ─── Job Configuration (user input) ─────────────────────────
 export const JobConfigSchema = z.object({
-  targetUrl: z.string().url().optional(),
+  targetUrl: z.string().optional(),
   maxPages: z.number().int().min(1).max(10000).optional(), // server will cap to plan limit
   maxDepth: z.number().int().min(1).max(5).default(2),
   crawlDelay: z.enum(['polite', 'normal', 'aggressive']).default('normal'),
@@ -17,6 +17,11 @@ export const JobConfigSchema = z.object({
     listingLinks: z.string().optional(),
     nextPage: z.string().optional(),
   }).optional(),
+  type: z.string().optional(),
+  companies: z.array(z.string()).optional(),
+  autoEnrich: z.boolean().optional(),
+  searchQuery: z.string().optional(),
+  searchLocation: z.string().optional(),
 });
 
 export type JobConfig = z.infer<typeof JobConfigSchema>;
@@ -53,7 +58,7 @@ export const FullJobSchema = z.object({
   id: z.string().uuid(),
   tenantId: z.string().uuid(),
   createdBy: z.string().uuid(),
-  targetUrl: z.string().url(),
+  targetUrl: z.string(),
   config: JobConfigSchema.default({}),
   status: JobStatusEnum.default('queued'),
   progress: JobProgressSchema.default({}),
@@ -67,7 +72,7 @@ export type FullJob = z.infer<typeof FullJobSchema>;
 
 // ─── Create Job (API input) ──────────────────────────────────
 export const CreateJobSchema = z.object({
-  targetUrl: z.string().url(),
+  targetUrl: z.string(),
   config: JobConfigSchema.optional().default({}),
 });
 

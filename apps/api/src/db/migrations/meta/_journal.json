@@ -29,6 +29,13 @@
       "when": 1781643390253,
       "tag": "0003_aspiring_nomad",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1781643390254,
+      "tag": "0004_enable_rls",
+      "breakpoints": true
     }
   ]
 }

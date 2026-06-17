@@ -18,10 +18,32 @@ router.post('/',
   limitMiddleware('jobs_monthly', 'maxJobsMonthly'),
   async (req, res, next) => {
     try {
+      // Pre-populate targetUrl for Prospector jobs if missing
+      if (req.body?.config?.type === 'prospector' && !req.body.targetUrl) {
+        req.body.targetUrl = 'prospector://queue';
+      }
+
       const parsed = CreateJobSchema.safeParse(req.body);
       if (!parsed.success) {
         handleValidationError(res, parsed.error);
         return;
+      }
+
+      // Enforce HTTP/HTTPS protocol for web scraper jobs
+      const jobType = parsed.data.config?.type;
+      if (!jobType || jobType === 'web_scraper') {
+        try {
+          const url = new URL(parsed.data.targetUrl);
+          if (!['http:', 'https:'].includes(url.protocol)) {
+            throw new Error();
+          }
+        } catch {
+          res.status(400).json({
+            success: false,
+            error: 'Target URL must be a valid HTTP or HTTPS URL for web scraping jobs.',
+          });
+          return;
+        }
       }
 
       // Check concurrent job limit
